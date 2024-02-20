@@ -10,4 +10,5 @@ public class SmsApplication {
 		SpringApplication.run(SmsApplication.class, args);
 	}
 
+
 }
