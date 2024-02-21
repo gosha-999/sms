@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -21,8 +22,8 @@ public class NutzerService {
         this.nutzerRepo = nutzerRepo;
     }
 
-    public Nutzer getNutzerInfo(Long moduleID) {
-        return nutzerRepo.findById(moduleID).orElseThrow(() ->
+    public Nutzer getNutzerInfo(Long moduleId) {
+        return nutzerRepo.findById(moduleId).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
     }
 
@@ -30,8 +31,8 @@ public class NutzerService {
         return nutzerRepo.save(nutzer); // Hier wird der Benutzer in der Datenbank gespeichert}
     }
 
-    public Nutzer updateUser(Long nutzerID, Nutzer updatedNutzer) {
-        Nutzer existingNutzer = nutzerRepo.findById(nutzerID).orElseThrow(() -> {
+    public Nutzer updateUser(Long nutzerId, Nutzer updatedNutzer) {
+        Nutzer existingNutzer = nutzerRepo.findById(nutzerId).orElseThrow(() -> {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden");
         });
 
@@ -42,8 +43,8 @@ public class NutzerService {
         return nutzerRepo.save(existingNutzer);
     }
 
-    public void deleteUser(Long nutzerID) {
-        nutzerRepo.deleteById(nutzerID);
+    public void deleteUser(Long nutzerId) {
+        nutzerRepo.deleteById(nutzerId);
     }
 
     public List<Nutzer> getAllNutzer() {
@@ -56,10 +57,10 @@ public class NutzerService {
         return nutzer.getMerkliste();
     }
 
-    public Set<Module> getGebuchtById(Long nutzerId) {
-        Nutzer nutzer = nutzerRepo.findById(nutzerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
 
-        return nutzer.getGebuchteModule();
-    }
+
+
+
+
+
 }

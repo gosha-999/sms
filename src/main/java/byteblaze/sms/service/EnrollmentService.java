@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Map;
+
 @Service
 public class EnrollmentService {
 
@@ -22,11 +24,11 @@ public class EnrollmentService {
     }
 
 
-    public void addToGebucht(Long nutzerID, Long moduleID) {
-        Nutzer nutzer = nutzerRepo.findById(nutzerID)
+    public void addToGebucht(Long nutzerId, Long moduleId) {
+        Nutzer nutzer = nutzerRepo.findById(nutzerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
 
-        Module module = moduleRepo.findById(moduleID)
+        Module module = moduleRepo.findById(moduleId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"));
 
         int totalECTS = nutzer.getGebuchteModule().stream().mapToInt(Module::getEcts).sum();
@@ -44,14 +46,39 @@ public class EnrollmentService {
 
 
 
-    public void removeFromGebucht(Long nutzerID, Long moduleID) {
-        Nutzer nutzer = nutzerRepo.findById(nutzerID)
+    public void removeFromGebucht(Long nutzerId, Long moduleId) {
+        Nutzer nutzer = nutzerRepo.findById(nutzerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
 
-        Module module = moduleRepo.findById(moduleID)
+        Module module = moduleRepo.findById(moduleId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"));
 
         nutzer.getMerkliste().remove(module);
+        nutzerRepo.save(nutzer);
+    }
+
+    // Service-Methode, um mehrere Noten für Module einzutragen
+    public void addNotesForModules(Long nutzerId, Map<Long, Double> moduleNotes) {
+        Nutzer nutzer = nutzerRepo.findById(nutzerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
+
+        for (Map.Entry<Long, Double> entry : moduleNotes.entrySet()) {
+            Long moduleId = entry.getKey();
+            Double note = entry.getValue();
+
+            // Überprüfen, ob das Modul bereits gebucht wurde
+            if (!nutzer.getGebuchteModule().stream().anyMatch(module -> module.getModuleId() == moduleId)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Das Modul wurde nicht gebucht");
+            }
+
+            // Validierung der Note
+            if (note < 1.0 || note > 5.0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Die Note muss zwischen 1,0 und 5,0 liegen");
+            }
+
+            nutzer.getNoten().put(moduleId, note);
+        }
+
         nutzerRepo.save(nutzer);
     }
 

@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -97,10 +98,13 @@ public class NutzerController {
             return ResponseEntity.ok("Gebuchtes Modul wurde erfolgreich gelöscht");
     }
 
-    @GetMapping("/{nutzerId}/gebucht")
-    public ResponseEntity<Set<Module>> getGebuchtById(@PathVariable Long nutzerId) {
-        Set<Module> gebuchteModule = nutzerService.getGebuchtById(nutzerId);
-        return ResponseEntity.ok(gebuchteModule);
+    // Controller-Methode zum Eintragen von Noten für Module
+    @PostMapping("/{nutzerId}/noten")
+    public ResponseEntity<Void> addNotesForModules(@PathVariable Long nutzerId, @RequestBody Map<Long, Double> moduleNotes) {
+        enrollmentService.addNotesForModules(nutzerId, moduleNotes);
+        return ResponseEntity.ok().build();
     }
+
+
 
 }

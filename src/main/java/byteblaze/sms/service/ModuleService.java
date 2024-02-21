@@ -19,8 +19,8 @@ public class ModuleService {
         this.moduleRepo = moduleRepo;
     }
 
-    public Module getModuleInfo(Long moduleID) {
-        return moduleRepo.findById(moduleID).orElseThrow(() ->
+    public Module getModuleInfo(Long moduleId) {
+        return moduleRepo.findById(moduleId).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"));
     }
 
@@ -28,8 +28,8 @@ public class ModuleService {
         return moduleRepo.save(module);
     }
 
-    public Module updateModule(Long moduleID, Module updatedModule) {
-        Module existingModule = moduleRepo.findById(moduleID).orElseThrow(() ->
+    public Module updateModule(Long moduleId, Module updatedModule) {
+        Module existingModule = moduleRepo.findById(moduleId).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"));
 
         existingModule.setBeschreibung(updatedModule.getBeschreibung());
@@ -42,12 +42,14 @@ public class ModuleService {
         return moduleRepo.save(existingModule);
     }
 
-    public void deleteModule(Long moduleID) {
-        moduleRepo.deleteById(moduleID);
+    public void deleteModule(Long moduleId) {
+        moduleRepo.deleteById(moduleId);
     }
 
     public List<Module> getAllModules() {
         return moduleRepo.findAll();
     }
+
+
 }
 

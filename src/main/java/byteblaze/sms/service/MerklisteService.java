@@ -23,22 +23,24 @@ public class MerklisteService {
         this.moduleRepo = moduleRepo;
     }
 
-    public void addToMerkliste(Long nutzerID, Long moduleID) {
+    //ADD
+    public void addToMerkliste(Long nutzerID, Long moduleId) {
         Nutzer nutzer = nutzerRepo.findById(nutzerID)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
 
-        Module module = moduleRepo.findById(moduleID)
+        Module module = moduleRepo.findById(moduleId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"));
 
         nutzer.getMerkliste().add(module);
         nutzerRepo.save(nutzer);
     }
 
-    public void removeFromMerkliste(Long nutzerID, Long moduleID) {
-        Nutzer nutzer = nutzerRepo.findById(nutzerID)
+    //DELETE
+    public void removeFromMerkliste(Long nutzerId, Long moduleId) {
+        Nutzer nutzer = nutzerRepo.findById(nutzerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
 
-        Module module = moduleRepo.findById(moduleID)
+        Module module = moduleRepo.findById(moduleId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"));
 
         nutzer.getMerkliste().remove(module);
