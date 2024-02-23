@@ -60,16 +60,11 @@ public class NutzerService {
         return nutzerRepo.findAll();
     }
 
-    public Long loginUser(String nutzername, String passwort) {
-        Nutzer nutzer = nutzerRepo.findByNutzername(nutzername)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Benutzer nicht gefunden"));
-
-        // Überprüfen, ob das Passwort übereinstimmt
-        if (!nutzer.getPassword().equals(passwort)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Falsches Passwort");
+    public Nutzer login(String nutzername, String password) {
+        Nutzer nutzer = nutzerRepo.findNutzerByNutzernameAndPassword(nutzername, password);
+        if (nutzer == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ungültige Anmeldeinformationen");
         }
-
-        // Wenn der Benutzername und das Passwort übereinstimmen, geben Sie die Nutzer-ID zurück
-        return nutzer.getNutzerId();
+        return nutzer;
     }
 }

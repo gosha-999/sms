@@ -128,6 +128,13 @@ public class NutzerController {
         return ResponseEntity.ok(allNotes);
     }
 
+    //login
+    @PostMapping("/login")
+    public ResponseEntity<Nutzer> login(@RequestBody String nutzername, @RequestBody String password) {
+        Nutzer angemeldeterNutzer = nutzerService.login(nutzername, password);
+        return ResponseEntity.ok(angemeldeterNutzer);
+    }
+
 
 
 
