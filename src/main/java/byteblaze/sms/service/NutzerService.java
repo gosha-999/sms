@@ -31,12 +31,12 @@ public class NutzerService {
     public Nutzer addUser(Nutzer nutzer) {
         String nutzername = nutzer.getNutzername();
 
-        // Überprüfen, ob der Benutzername bereits existiert
-        if (nutzerRepo.existsByNutzername(nutzername)) {
+        // Überprüfen, ob der Benutzername bereits existiert (ohne Groß- und Kleinschreibung zu berücksichtigen)
+        if (nutzerRepo.findAll().stream().anyMatch(existingUser -> existingUser.getNutzername().equalsIgnoreCase(nutzername))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Benutzername bereits vergeben");
         }
 
-        // Wenn der Benutzername eindeutig ist füge hinzu
+        // Wenn der Benutzername eindeutig ist, füge hinzu
         return nutzerRepo.save(nutzer);
     }
 
