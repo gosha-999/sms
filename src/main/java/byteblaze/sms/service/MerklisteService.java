@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class MerklisteService {
@@ -45,5 +46,11 @@ public class MerklisteService {
 
         nutzer.getMerkliste().remove(module);
         nutzerRepo.save(nutzer);
+    }
+
+    public Set<Module> getMerklisteByNutzerId(Long nutzerId) {
+        Nutzer nutzer = nutzerRepo.findById(nutzerId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
+        return nutzer.getMerkliste();
     }
 }

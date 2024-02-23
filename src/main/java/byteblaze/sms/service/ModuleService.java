@@ -2,6 +2,7 @@ package byteblaze.sms.service;
 
 import byteblaze.sms.model.Module;
 import byteblaze.sms.repository.ModuleRepo;
+import byteblaze.sms.repository.NutzerRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -13,10 +14,12 @@ import java.util.List;
 public class ModuleService {
 
     private final ModuleRepo moduleRepo;
+    private final NutzerRepo nutzerRepo;
 
     @Autowired
-    public ModuleService(ModuleRepo moduleRepo){
+    public ModuleService(ModuleRepo moduleRepo, NutzerRepo nutzerRepo){
         this.moduleRepo = moduleRepo;
+        this.nutzerRepo = nutzerRepo;
     }
 
     public Module getModuleInfo(Long moduleId) {
@@ -42,14 +45,22 @@ public class ModuleService {
         return moduleRepo.save(existingModule);
     }
 
-    public void deleteModule(Long moduleId) {
-        moduleRepo.deleteById(moduleId);
-    }
+
 
     public List<Module> getAllModules() {
         return moduleRepo.findAll();
     }
 
+    public void deleteModule(Long moduleId) {
+        // Überprüfen, ob das Modul von einem Nutzer gebucht wurde
+        boolean moduleBooked = nutzerRepo.existsByGebuchteModuleModuleId(moduleId);
+        if (moduleBooked) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Das Modul kann nicht gelöscht werden, da es von einem Nutzer gebucht ist");
+        }
+
+        // Löschen des Moduls, wenn kein Nutzer es gebucht hat
+        moduleRepo.deleteById(moduleId);
+    }
 
 }
 

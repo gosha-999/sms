@@ -54,10 +54,10 @@ public class ModuleController {
         return ResponseEntity.ok(modules);
     }
 
-    //Bewerten
-    @PostMapping("/{moduleID}/rating/{nutzerID}")
-    public ResponseEntity<String> addModuleRating(@PathVariable Long moduleID, @PathVariable Long nutzerID, @RequestBody int rating) {
-        ratingService.addModuleRating(moduleID, nutzerID, rating);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Bewertung wurde erfolgreich hinzugefügt");
+    //bewerten
+    @PostMapping("/{moduleId}/bewertung/{nutzerId}")
+    public ResponseEntity<String> bewerteModul(@PathVariable Long moduleId, @PathVariable Long nutzerId, @RequestBody int rating) {
+        ratingService.addModuleRating(moduleId, nutzerId, rating);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Bewertung erfolgreich hinzugefügt");
     }
 }

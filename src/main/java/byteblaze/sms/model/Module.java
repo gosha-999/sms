@@ -3,6 +3,9 @@ package byteblaze.sms.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Data
 @Entity
 @Table
@@ -20,4 +23,10 @@ public class Module {
 
     private double durchschnittlicheBewertung;
     private int anzahlBewertungen;
+
+    @ElementCollection
+    @CollectionTable(name = "module_bewertungen", joinColumns = @JoinColumn(name = "modul_id"))
+    @MapKeyColumn(name = "nutzer_id")
+    @Column(name = "rating")
+    private Map<Long, Integer> bewertungen = new HashMap<>();
 }

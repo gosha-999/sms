@@ -51,16 +51,5 @@ public class NutzerService {
         return nutzerRepo.findAll();
     }
 
-    public Set<Module> getMerklisteByNutzerId(Long nutzerId) {
-        Nutzer nutzer = nutzerRepo.findById(nutzerId).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
-        return nutzer.getMerkliste();
-    }
-
-
-
-
-
-
 
 }

@@ -38,7 +38,6 @@ public class Nutzer {
     @CollectionTable(name = "nutzer_noten", joinColumns = @JoinColumn(name = "nutzer_id"))
     @MapKeyColumn(name = "modul_id")
     @Column(name = "note")
-
     //KEY VALUE für moduleId und Noten
     private Map<Long, Double> noten = new HashMap<>();
 }

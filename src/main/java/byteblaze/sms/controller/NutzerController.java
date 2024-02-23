@@ -81,7 +81,7 @@ public class NutzerController {
 
     @GetMapping("/{nutzerId}/merkliste")
     public ResponseEntity<Set<Module>> getMerklisteByNutzerId(@PathVariable Long nutzerId) {
-        Set<Module> merkliste = nutzerService.getMerklisteByNutzerId(nutzerId);
+        Set<Module> merkliste = merklisteService.getMerklisteByNutzerId(nutzerId);
         return ResponseEntity.ok(merkliste);
     }
 

@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Map;
+
 @Service
 public class RatingService {
 
@@ -22,33 +24,51 @@ public class RatingService {
     }
 
     public void addModuleRating(Long moduleID, Long nutzerID, int rating) {
-        // Überprüfen, ob der Nutzer eine Note für das Modul gesetzt hat
         Nutzer nutzer = nutzerRepo.findById(nutzerID).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
 
         Module module = moduleRepo.findById(moduleID).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"));
 
-        if (!nutzer.getNoten().containsKey(moduleID)) {
+        // Überprüfen, ob der Nutzer bereits eine Bewertung für das Modul abgegeben hat
+        Map<Long, Integer> bewertungen = module.getBewertungen();
+        if (bewertungen.containsKey(nutzerID)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Der Nutzer hat bereits eine Bewertung für dieses Modul abgegeben");
+        }
+
+        // Sicherstellen, dass der Nutzer eine Note für das Modul gesetzt hat
+        Map<Long, Double> noten = nutzer.getNoten();
+        if (!noten.containsKey(moduleID)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Der Nutzer hat keine Note für dieses Modul gesetzt");
         }
 
-        // Überprüfen, ob der Nutzer bereits eine Bewertung für das Modul abgegeben hat
-        //fehlt
+        // Sicherstellen, dass die Bewertung im Bereich von 1 bis 5 liegt
+        if (rating < 1 || rating > 5) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Die Bewertung muss im Bereich von 1 bis 5 liegen");
+        }
 
-        // Bewertung speichern
-        nutzer.getNoten().put(moduleID, (double) rating);
-        nutzerRepo.save(nutzer);
+        // Bewertung hinzufügen
+        bewertungen.put(nutzerID, rating);
+        module.setBewertungen(bewertungen);
 
         // Durchschnittliche Bewertung des Moduls aktualisieren
-        double currentAverageRating = module.getDurchschnittlicheBewertung();
-        int currentNumberOfRatings = module.getAnzahlBewertungen();
+        double currentAverageRating = calculateAverageRating(module.getBewertungen());
+        module.setDurchschnittlicheBewertung(currentAverageRating);
 
-        double newAverageRating = ((currentAverageRating * currentNumberOfRatings) + rating) / (currentNumberOfRatings + 1);
-        module.setDurchschnittlicheBewertung(newAverageRating);
-        module.setAnzahlBewertungen(currentNumberOfRatings + 1);
+        // Anzahl der Bewertungen aktualisieren
+        int numberOfRatings = bewertungen.size();
+        module.setAnzahlBewertungen(numberOfRatings);
 
+        // Modul speichern
         moduleRepo.save(module);
+    }
+
+    private double calculateAverageRating(Map<Long, Integer> bewertungen) {
+        int sum = 0;
+        for (int rating : bewertungen.values()) {
+            sum += rating;
+        }
+        return (double) sum / bewertungen.size();
     }
 
 
