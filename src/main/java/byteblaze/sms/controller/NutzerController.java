@@ -130,7 +130,16 @@ public class NutzerController {
 
     //login
     @PostMapping("/login")
-    public ResponseEntity<Nutzer> login(@RequestBody String nutzername, @RequestBody String password) {
+    public ResponseEntity<Nutzer> login(@RequestBody Map<String, String> loginRequest) {
+        String nutzername = loginRequest.get("nutzername");
+        String password = loginRequest.get("password");
+        Nutzer nutzer = nutzerService.login(nutzername, password);
+        return ResponseEntity.ok(nutzer);
+    }
+
+    //login 2
+    @PostMapping("/loginpa")
+    public ResponseEntity<Nutzer> loginpa(@RequestParam String nutzername, @RequestParam String password) {
         Nutzer angemeldeterNutzer = nutzerService.login(nutzername, password);
         return ResponseEntity.ok(angemeldeterNutzer);
     }
