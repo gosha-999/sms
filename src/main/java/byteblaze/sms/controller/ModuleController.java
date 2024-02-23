@@ -24,9 +24,15 @@ public class ModuleController {
         this.ratingService = ratingService;
     }
 
-    @GetMapping("/{moduleID}")
-    public ResponseEntity<Module> getModuleById(@PathVariable Long moduleID) {
-        Module module = moduleService.getModuleInfo(moduleID);
+    @GetMapping("/{moduleId}")
+    public ResponseEntity<Module> getModuleById(@PathVariable Long moduleId) {
+        Module module = moduleService.getModuleInfo(moduleId);
+        return ResponseEntity.ok(module);
+    }
+
+    @GetMapping
+    public ResponseEntity<Module> getModuleByIdParam(@RequestParam Long moduleId) {
+        Module module = moduleService.getModuleInfo(moduleId);
         return ResponseEntity.ok(module);
     }
 
@@ -60,4 +66,5 @@ public class ModuleController {
         ratingService.addModuleRating(moduleId, nutzerId, rating);
         return ResponseEntity.status(HttpStatus.CREATED).body("Bewertung erfolgreich hinzugefügt");
     }
+
 }

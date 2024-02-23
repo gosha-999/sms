@@ -9,7 +9,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class EnrollmentService {
@@ -57,6 +60,13 @@ public class EnrollmentService {
         nutzerRepo.save(nutzer);
     }
 
+    public Set<Module> getEnrolledModules(Long nutzerId) {
+        Nutzer nutzer = nutzerRepo.findById(nutzerId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
+
+        return nutzer.getGebuchteModule();
+    }
+
     // Service-Methode, um mehrere Noten für Module einzutragen
     public void addNotesForModules(Long nutzerId, Map<Long, Double> moduleNotes) {
         Nutzer nutzer = nutzerRepo.findById(nutzerId)
@@ -80,6 +90,26 @@ public class EnrollmentService {
         }
 
         nutzerRepo.save(nutzer);
+    }
+
+    public Map<Long, Double> getAllNotes(Long nutzerId) {
+        Nutzer nutzer = nutzerRepo.findById(nutzerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
+
+        return nutzer.getNoten();
+    }
+
+    //FILTER BENOTET JA/NEIN
+    public List<Module> getBookedModules(Long nutzerId, boolean benotet) {
+        Nutzer nutzer = nutzerRepo.findById(nutzerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
+
+        return nutzer.getGebuchteModule().stream()
+                .filter(module -> {
+                    boolean hasNote = nutzer.getNoten().containsKey(module.getModuleId());
+                    return (benotet && hasNote) || (!benotet && !hasNote);
+                })
+                .collect(Collectors.toList());
     }
 
 

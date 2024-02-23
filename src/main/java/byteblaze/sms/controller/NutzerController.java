@@ -79,6 +79,7 @@ public class NutzerController {
         }
     }
 
+    //GIBT DIE MERKLISTE EINES NUTZERS AUS
     @GetMapping("/{nutzerId}/merkliste")
     public ResponseEntity<Set<Module>> getMerklisteByNutzerId(@PathVariable Long nutzerId) {
         Set<Module> merkliste = merklisteService.getMerklisteByNutzerId(nutzerId);
@@ -86,24 +87,48 @@ public class NutzerController {
     }
 
 
+    //BUCHE MODUL
     @PostMapping("/{nutzerID}/gebucht/{moduleID}")
     public ResponseEntity<String> addToGebucht(@PathVariable Long nutzerID, @PathVariable Long moduleID) {
             enrollmentService.addToGebucht(nutzerID, moduleID);
             return ResponseEntity.ok("Modul wurde zu gebucht");
     }
 
+    //MODUL AUS BUCHUNG LÖSCHEN
     @DeleteMapping("/{nutzerID}/gebucht/{moduleID}")
     public ResponseEntity<String> removeFromGebucht(@PathVariable Long nutzerID, @PathVariable Long moduleID) {
             enrollmentService.removeFromGebucht(nutzerID, moduleID);
             return ResponseEntity.ok("Gebuchtes Modul wurde erfolgreich gelöscht");
     }
 
-    // Controller-Methode zum Eintragen von Noten für Module
+    //GIBT ALLE GEBUCHTEN MODULE EINES NUTZERS ZURÜCK
+    @GetMapping("/{nutzerId}/gebucht")
+    public ResponseEntity<Set<Module>> getEnrolledModules(@PathVariable Long nutzerId) {
+        Set<Module> enrolledModules = enrollmentService.getEnrolledModules(nutzerId);
+        return ResponseEntity.ok(enrolledModules);
+    }
+
+    //FILTERN DER GEBUCHT LISTE NACH BENOTET TRUE FALSE
+    @GetMapping("/{nutzerId}/gebuchtfilter")
+    public List<Module> getBookedModulesForUser(@PathVariable Long nutzerId, @RequestParam(required = false) boolean benotet) {
+        return enrollmentService.getBookedModules(nutzerId, benotet);
+    }
+
+    //MODUL BENOTEN
     @PostMapping("/{nutzerId}/noten")
     public ResponseEntity<Void> addNotesForModules(@PathVariable Long nutzerId, @RequestBody Map<Long, Double> moduleNotes) {
         enrollmentService.addNotesForModules(nutzerId, moduleNotes);
         return ResponseEntity.ok().build();
     }
+
+    //GIBT ALLE NOTEN EINES NUTZERS ZURÜCK
+    @GetMapping("/{nutzerId}/noten")
+    public ResponseEntity<Map<Long, Double>> getAllNotes(@PathVariable Long nutzerId) {
+        Map<Long, Double> allNotes = enrollmentService.getAllNotes(nutzerId);
+        return ResponseEntity.ok(allNotes);
+    }
+
+
 
 
 

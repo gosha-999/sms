@@ -10,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -28,7 +29,15 @@ public class NutzerService {
     }
 
     public Nutzer addUser(Nutzer nutzer) {
-        return nutzerRepo.save(nutzer); // Hier wird der Benutzer in der Datenbank gespeichert}
+        String nutzername = nutzer.getNutzername();
+
+        // Überprüfen, ob der Benutzername bereits existiert
+        if (nutzerRepo.existsByNutzername(nutzername)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Benutzername bereits vergeben");
+        }
+
+        // Wenn der Benutzername eindeutig ist füge hinzu
+        return nutzerRepo.save(nutzer);
     }
 
     public Nutzer updateUser(Long nutzerId, Nutzer updatedNutzer) {
@@ -51,5 +60,16 @@ public class NutzerService {
         return nutzerRepo.findAll();
     }
 
+    public Long loginUser(String nutzername, String passwort) {
+        Nutzer nutzer = nutzerRepo.findByNutzername(nutzername)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Benutzer nicht gefunden"));
 
+        // Überprüfen, ob das Passwort übereinstimmt
+        if (!nutzer.getPassword().equals(passwort)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Falsches Passwort");
+        }
+
+        // Wenn der Benutzername und das Passwort übereinstimmen, geben Sie die Nutzer-ID zurück
+        return nutzer.getNutzerId();
+    }
 }
