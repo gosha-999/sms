@@ -60,11 +60,5 @@ public class NutzerService {
         return nutzerRepo.findAll();
     }
 
-    public Nutzer login(String nutzername, String password) {
-        Nutzer nutzer = nutzerRepo.findByNutzernameAndPassword(nutzername, password);
-        if (nutzer == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ungültige Anmeldeinformationen");
-        }
-        return nutzer;
-    }
+
 }
