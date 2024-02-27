@@ -1,6 +1,7 @@
 package byteblaze.sms.controller;
 
 import byteblaze.sms.model.Module;
+import byteblaze.sms.service.LoginService;
 import byteblaze.sms.service.ModuleService;
 import byteblaze.sms.service.RatingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +18,14 @@ public class ModuleController {
     private final ModuleService moduleService;
     private final RatingService ratingService;
 
+    private final LoginService loginService;
+
     @Autowired
-    public ModuleController(ModuleService moduleService, RatingService ratingService) {
+    public ModuleController(ModuleService moduleService, RatingService ratingService, LoginService loginService) {
 
         this.moduleService = moduleService;
         this.ratingService = ratingService;
+        this.loginService = loginService;
     }
 
     @GetMapping("/{moduleId}")
@@ -61,9 +65,9 @@ public class ModuleController {
     }
 
     //bewerten
-    @PostMapping("/{moduleId}/bewertung/{nutzerId}")
-    public ResponseEntity<String> bewerteModul(@PathVariable Long moduleId, @PathVariable Long nutzerId, @RequestBody int rating) {
-        ratingService.addModuleRating(moduleId, nutzerId, rating);
+    @PostMapping("/{moduleId}/bewertung")
+    public ResponseEntity<String> bewerteModul(@PathVariable Long moduleId, @RequestBody int rating) {
+        ratingService.addModuleRating(moduleId, loginService.getLoggedInUserId(), rating);
         return ResponseEntity.status(HttpStatus.CREATED).body("Bewertung erfolgreich hinzugefügt");
     }
 

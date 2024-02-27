@@ -2,7 +2,6 @@ package byteblaze.sms.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,4 +28,5 @@ public class Module {
     @MapKeyColumn(name = "nutzer_id")
     @Column(name = "rating")
     private Map<Long, Integer> bewertungen = new HashMap<>();
+
 }

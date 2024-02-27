@@ -131,6 +131,13 @@ public class NutzerController {
         return ResponseEntity.ok(allNotes);
     }
 
+    //SCHNITT ALLER NOTEN
+    @GetMapping("/durchschnittsnote")
+    public ResponseEntity<Double> getWeightedAverageGrade() {
+        double averageGrade = enrollmentService.calculateWeightedAverageGrade(loginService.getLoggedInUserId());
+        return ResponseEntity.ok(averageGrade);
+    }
+
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody Nutzer nutzer) {
         Long nutzerId = loginService.login(nutzer.getNutzername(), nutzer.getPassword());

@@ -112,6 +112,34 @@ public class EnrollmentService {
                 .collect(Collectors.toList());
     }
 
+    public double calculateWeightedAverageGrade(Long nutzerId) {
+        Nutzer nutzer = nutzerRepo.findById(nutzerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
+
+        Map<Long, Double> noten = nutzer.getNoten();
+
+        if (noten.isEmpty()) {
+            return 0.0; // Wenn der Nutzer keine Noten hat, beträgt der Durchschnitt 0
+        }
+
+        double sumWeightedGrade = 0.0;
+        int sumECTS = 0;
+
+        for (Map.Entry<Long, Double> entry : noten.entrySet()) {
+            Long moduleId = entry.getKey();
+            Double note = entry.getValue();
+
+            Module module = moduleRepo.findById(moduleId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"));
+
+            int ects = module.getEcts();
+            sumWeightedGrade += note * ects;
+            sumECTS += ects;
+        }
+
+        return sumWeightedGrade / sumECTS;
+    }
+
 
 
 

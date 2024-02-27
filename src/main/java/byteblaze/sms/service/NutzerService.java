@@ -41,8 +41,8 @@ public class NutzerService {
     }
 
     public Nutzer updateUser(Long nutzerId, Nutzer updatedNutzer) {
-        Nutzer existingNutzer = nutzerRepo.findById(nutzerId).orElseThrow(() -> {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden");
+        Nutzer existingNutzer = nutzerRepo.findById(nutzerId)
+                .orElseThrow(() -> {throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden");
         });
 
         existingNutzer.setDetails(updatedNutzer.getDetails());
