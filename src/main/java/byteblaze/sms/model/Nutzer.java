@@ -3,10 +3,7 @@ package byteblaze.sms.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @Entity
@@ -40,4 +37,8 @@ public class Nutzer {
     @Column(name = "note")
     //KEY VALUE für moduleId und Noten
     private Map<Long, Double> noten = new HashMap<>();
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "gebuchte_klausurtermine")
+    private List<KlausurTermin> gebuchteKlausurTermine = new ArrayList<>();
 }

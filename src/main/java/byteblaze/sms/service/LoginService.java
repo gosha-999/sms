@@ -1,7 +1,7 @@
 package byteblaze.sms.service;
 
 import byteblaze.sms.model.Nutzer;
-import byteblaze.sms.repository.NutzerRepo;
+import byteblaze.sms.repository.NutzerRepository;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,15 +11,15 @@ import org.springframework.stereotype.Service;
 public class LoginService {
 
     private Long loggedInUserId;
-    private final NutzerRepo nutzerRepo;
+    private final NutzerRepository nutzerRepository;
 
     @Autowired
-    public LoginService(NutzerRepo nutzerRepo) {
-        this.nutzerRepo = nutzerRepo;
+    public LoginService(NutzerRepository nutzerRepository) {
+        this.nutzerRepository = nutzerRepository;
     }
 
     public Long login(String nutzername, String password) {
-        Nutzer nutzer = nutzerRepo.findByNutzernameAndPassword(nutzername, password);
+        Nutzer nutzer = nutzerRepository.findByNutzernameAndPassword(nutzername, password);
         if (nutzer != null) {
             loggedInUserId = nutzer.getNutzerId();
             return loggedInUserId;

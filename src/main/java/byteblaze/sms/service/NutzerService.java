@@ -1,30 +1,26 @@
 package byteblaze.sms.service;
 
-import byteblaze.sms.model.Module;
 import byteblaze.sms.model.Nutzer;
-import byteblaze.sms.repository.NutzerRepo;
+import byteblaze.sms.repository.NutzerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class NutzerService {
 
-    private final NutzerRepo nutzerRepo;
+    private final NutzerRepository nutzerRepository;
 
     @Autowired
-    public NutzerService(NutzerRepo nutzerRepo) {
-        this.nutzerRepo = nutzerRepo;
+    public NutzerService(NutzerRepository nutzerRepository) {
+        this.nutzerRepository = nutzerRepository;
     }
 
     public Nutzer getNutzerInfo(Long moduleId) {
-        return nutzerRepo.findById(moduleId).orElseThrow(() ->
+        return nutzerRepository.findById(moduleId).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
     }
 
@@ -32,16 +28,16 @@ public class NutzerService {
         String nutzername = nutzer.getNutzername();
 
         // Überprüfen, ob der Benutzername bereits existiert (ohne Groß- und Kleinschreibung zu berücksichtigen)
-        if (nutzerRepo.findAll().stream().anyMatch(existingUser -> existingUser.getNutzername().equalsIgnoreCase(nutzername))) {
+        if (nutzerRepository.findAll().stream().anyMatch(existingUser -> existingUser.getNutzername().equalsIgnoreCase(nutzername))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Benutzername bereits vergeben");
         }
 
         // Wenn der Benutzername eindeutig ist, füge hinzu
-        return nutzerRepo.save(nutzer);
+        return nutzerRepository.save(nutzer);
     }
 
     public Nutzer updateUser(Long nutzerId, Nutzer updatedNutzer) {
-        Nutzer existingNutzer = nutzerRepo.findById(nutzerId)
+        Nutzer existingNutzer = nutzerRepository.findById(nutzerId)
                 .orElseThrow(() -> {throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden");
         });
 
@@ -49,15 +45,15 @@ public class NutzerService {
         existingNutzer.setNutzername(updatedNutzer.getNutzername());
         existingNutzer.setPassword(updatedNutzer.getPassword());
 
-        return nutzerRepo.save(existingNutzer);
+        return nutzerRepository.save(existingNutzer);
     }
 
     public void deleteUser(Long nutzerId) {
-        nutzerRepo.deleteById(nutzerId);
+        nutzerRepository.deleteById(nutzerId);
     }
 
     public List<Nutzer> getAllNutzer() {
-        return nutzerRepo.findAll();
+        return nutzerRepository.findAll();
     }
 
 

@@ -2,8 +2,8 @@ package byteblaze.sms.service;
 
 import byteblaze.sms.model.Module;
 import byteblaze.sms.model.Nutzer;
-import byteblaze.sms.repository.ModuleRepo;
-import byteblaze.sms.repository.NutzerRepo;
+import byteblaze.sms.repository.ModuleRepository;
+import byteblaze.sms.repository.NutzerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -14,20 +14,20 @@ import java.util.Map;
 @Service
 public class RatingService {
 
-    private final ModuleRepo moduleRepo;
-    private final NutzerRepo nutzerRepo;
+    private final ModuleRepository moduleRepository;
+    private final NutzerRepository nutzerRepository;
 
     @Autowired
-    public RatingService(ModuleRepo moduleRepo, NutzerRepo nutzerRepo) {
-        this.moduleRepo = moduleRepo;
-        this.nutzerRepo = nutzerRepo;
+    public RatingService(ModuleRepository moduleRepository, NutzerRepository nutzerRepository) {
+        this.moduleRepository = moduleRepository;
+        this.nutzerRepository = nutzerRepository;
     }
 
     public void addModuleRating(Long moduleID, Long nutzerID, int rating) {
-        Nutzer nutzer = nutzerRepo.findById(nutzerID).orElseThrow(() ->
+        Nutzer nutzer = nutzerRepository.findById(nutzerID).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
 
-        Module module = moduleRepo.findById(moduleID).orElseThrow(() ->
+        Module module = moduleRepository.findById(moduleID).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"));
 
         // Überprüfen, ob der Nutzer bereits eine Bewertung für das Modul abgegeben hat
@@ -60,7 +60,7 @@ public class RatingService {
         module.setAnzahlBewertungen(numberOfRatings);
 
         // Modul speichern
-        moduleRepo.save(module);
+        moduleRepository.save(module);
     }
 
     private double calculateAverageRating(Map<Long, Integer> bewertungen) {

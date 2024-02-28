@@ -2,8 +2,8 @@ package byteblaze.sms.service;
 
 import byteblaze.sms.model.Module;
 import byteblaze.sms.model.Nutzer;
-import byteblaze.sms.repository.ModuleRepo;
-import byteblaze.sms.repository.NutzerRepo;
+import byteblaze.sms.repository.ModuleRepository;
+import byteblaze.sms.repository.NutzerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -17,21 +17,21 @@ import java.util.stream.Collectors;
 @Service
 public class EnrollmentService {
 
-    private final NutzerRepo nutzerRepo;
-    private final ModuleRepo moduleRepo;
+    private final NutzerRepository nutzerRepository;
+    private final ModuleRepository moduleRepository;
 
     @Autowired
-    public EnrollmentService(NutzerRepo nutzerRepo, ModuleRepo moduleRepo) {
-        this.nutzerRepo = nutzerRepo;
-        this.moduleRepo = moduleRepo;
+    public EnrollmentService(NutzerRepository nutzerRepository, ModuleRepository moduleRepository) {
+        this.nutzerRepository = nutzerRepository;
+        this.moduleRepository = moduleRepository;
     }
 
 
     public void addToGebucht(Long nutzerId, Long moduleId) {
-        Nutzer nutzer = nutzerRepo.findById(nutzerId)
+        Nutzer nutzer = nutzerRepository.findById(nutzerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
 
-        Module module = moduleRepo.findById(moduleId)
+        Module module = moduleRepository.findById(moduleId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"));
 
         int totalECTS = nutzer.getGebuchteModule().stream().mapToInt(Module::getEcts).sum();
@@ -40,7 +40,7 @@ public class EnrollmentService {
 
         if (totalWithModule <= 30) {
             nutzer.getGebuchteModule().add(module);
-            nutzerRepo.save(nutzer);
+            nutzerRepository.save(nutzer);
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Die Gesamtanzahl der ECTS-Punkte überschreitet 30");
         }
@@ -50,18 +50,18 @@ public class EnrollmentService {
 
 
     public void removeFromGebucht(Long nutzerId, Long moduleId) {
-        Nutzer nutzer = nutzerRepo.findById(nutzerId)
+        Nutzer nutzer = nutzerRepository.findById(nutzerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
 
-        Module module = moduleRepo.findById(moduleId)
+        Module module = moduleRepository.findById(moduleId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"));
 
         nutzer.getMerkliste().remove(module);
-        nutzerRepo.save(nutzer);
+        nutzerRepository.save(nutzer);
     }
 
     public Set<Module> getEnrolledModules(Long nutzerId) {
-        Nutzer nutzer = nutzerRepo.findById(nutzerId).orElseThrow(() ->
+        Nutzer nutzer = nutzerRepository.findById(nutzerId).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
 
         return nutzer.getGebuchteModule();
@@ -69,7 +69,7 @@ public class EnrollmentService {
 
     // Service-Methode, um mehrere Noten für Module einzutragen
     public void addNotesForModules(Long nutzerId, Map<Long, Double> moduleNotes) {
-        Nutzer nutzer = nutzerRepo.findById(nutzerId)
+        Nutzer nutzer = nutzerRepository.findById(nutzerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
 
         for (Map.Entry<Long, Double> entry : moduleNotes.entrySet()) {
@@ -89,11 +89,11 @@ public class EnrollmentService {
             nutzer.getNoten().put(moduleId, note);
         }
 
-        nutzerRepo.save(nutzer);
+        nutzerRepository.save(nutzer);
     }
 
     public Map<Long, Double> getAllNotes(Long nutzerId) {
-        Nutzer nutzer = nutzerRepo.findById(nutzerId)
+        Nutzer nutzer = nutzerRepository.findById(nutzerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
 
         return nutzer.getNoten();
@@ -101,7 +101,7 @@ public class EnrollmentService {
 
     //FILTER BENOTET JA/NEIN
     public List<Module> getBookedModules(Long nutzerId, boolean benotet) {
-        Nutzer nutzer = nutzerRepo.findById(nutzerId)
+        Nutzer nutzer = nutzerRepository.findById(nutzerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
 
         return nutzer.getGebuchteModule().stream()
@@ -113,7 +113,7 @@ public class EnrollmentService {
     }
 
     public double calculateWeightedAverageGrade(Long nutzerId) {
-        Nutzer nutzer = nutzerRepo.findById(nutzerId)
+        Nutzer nutzer = nutzerRepository.findById(nutzerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
 
         Map<Long, Double> noten = nutzer.getNoten();
@@ -129,7 +129,7 @@ public class EnrollmentService {
             Long moduleId = entry.getKey();
             Double note = entry.getValue();
 
-            Module module = moduleRepo.findById(moduleId)
+            Module module = moduleRepository.findById(moduleId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"));
 
             int ects = module.getEcts();

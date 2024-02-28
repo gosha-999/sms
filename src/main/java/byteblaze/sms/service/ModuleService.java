@@ -1,8 +1,8 @@
 package byteblaze.sms.service;
 
 import byteblaze.sms.model.Module;
-import byteblaze.sms.repository.ModuleRepo;
-import byteblaze.sms.repository.NutzerRepo;
+import byteblaze.sms.repository.ModuleRepository;
+import byteblaze.sms.repository.NutzerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -13,26 +13,26 @@ import java.util.List;
 @Service
 public class ModuleService {
 
-    private final ModuleRepo moduleRepo;
-    private final NutzerRepo nutzerRepo;
+    private final ModuleRepository moduleRepository;
+    private final NutzerRepository nutzerRepository;
 
     @Autowired
-    public ModuleService(ModuleRepo moduleRepo, NutzerRepo nutzerRepo){
-        this.moduleRepo = moduleRepo;
-        this.nutzerRepo = nutzerRepo;
+    public ModuleService(ModuleRepository moduleRepository, NutzerRepository nutzerRepository){
+        this.moduleRepository = moduleRepository;
+        this.nutzerRepository = nutzerRepository;
     }
 
     public Module getModuleInfo(Long moduleId) {
-        return moduleRepo.findById(moduleId).orElseThrow(() ->
+        return moduleRepository.findById(moduleId).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"));
     }
 
     public Module addModule(Module module){
-        return moduleRepo.save(module);
+        return moduleRepository.save(module);
     }
 
     public Module updateModule(Long moduleId, Module updatedModule) {
-        Module existingModule = moduleRepo.findById(moduleId).orElseThrow(() ->
+        Module existingModule = moduleRepository.findById(moduleId).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"));
 
         existingModule.setBeschreibung(updatedModule.getBeschreibung());
@@ -42,24 +42,24 @@ public class ModuleService {
         existingModule.setRegeltermin(updatedModule.getRegeltermin());
         existingModule.setLiteraturempfehlung(updatedModule.getLiteraturempfehlung());
 
-        return moduleRepo.save(existingModule);
+        return moduleRepository.save(existingModule);
     }
 
 
 
     public List<Module> getAllModules() {
-        return moduleRepo.findAll();
+        return moduleRepository.findAll();
     }
 
     public void deleteModule(Long moduleId) {
         // Überprüfen, ob das Modul von einem Nutzer gebucht wurde
-        boolean moduleBooked = nutzerRepo.existsByGebuchteModuleModuleId(moduleId);
+        boolean moduleBooked = nutzerRepository.existsByGebuchteModuleModuleId(moduleId);
         if (moduleBooked) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Das Modul kann nicht gelöscht werden, da es von einem Nutzer gebucht ist");
         }
 
         // Löschen des Moduls, wenn kein Nutzer es gebucht hat
-        moduleRepo.deleteById(moduleId);
+        moduleRepository.deleteById(moduleId);
     }
 
 }
