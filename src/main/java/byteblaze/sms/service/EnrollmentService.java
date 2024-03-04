@@ -30,24 +30,31 @@ public class EnrollmentService {
     public void addToGebucht(Long nutzerId, Long moduleId) {
         Nutzer nutzer = nutzerRepository.findById(nutzerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
-
         Module module = moduleRepository.findById(moduleId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"));
 
-        int totalECTS = nutzer.getGebuchteModule().stream().mapToInt(Module::getEcts).sum();
-        int moduleECTS = module.getEcts();
-        int totalWithModule = totalECTS + moduleECTS;
-
-        if (totalWithModule <= 30) {
-            nutzer.getGebuchteModule().add(module);
-            nutzerRepository.save(nutzer);
-        } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Die Gesamtanzahl der ECTS-Punkte überschreitet 30");
+        if (nutzer.getGebuchteModule().contains(module)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Der Nutzer hat das Modul bereits gebucht");
         }
+
+        int totalECTSWithoutGrades = nutzer.getGebuchteModule().stream()
+                .filter(m -> !nutzer.getNoten().containsKey(m.getModuleId()))
+                .mapToInt(Module::getEcts)
+                .sum();
+
+        if (totalECTSWithoutGrades + module.getEcts() > 30) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Die maximale Anzahl von 30 ECTS ist bereits erreicht");
+        }
+
+        nutzer.getGebuchteModule().add(module);
+
+        //für PAUL
+        // Da die Tasks bereits mit dem Modul assoziiert sind ist keine zusätzliche Logik erforderlich
+        // um die Tasks direkt dem Nutzer zuzuordnen. Der Nutzer erhält Zugriff auf die Tasks durch die Buchung des Moduls.
+        // Stelle sicher, dass die Anwendungslogik oder das Frontend entsprechend gestaltet ist, um diese Beziehung darzustellen.
+
+        nutzerRepository.save(nutzer);
     }
-
-
-
 
     public void removeFromGebucht(Long nutzerId, Long moduleId) {
         Nutzer nutzer = nutzerRepository.findById(nutzerId)

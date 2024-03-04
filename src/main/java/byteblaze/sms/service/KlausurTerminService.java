@@ -56,38 +56,22 @@ public class KlausurTerminService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Es sind keine Plätze mehr verfügbar");
         }
 
-        Long klausurModulId = klausurTermin.getModuleId();
-
-        boolean isModuleBooked = nutzer.getGebuchteModule().stream()
-                .anyMatch(module -> module.getModuleId() ==klausurModulId);
-
-        if (!isModuleBooked) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Das Modul ist nicht in den gebuchten Modulen des Nutzers enthalten");
-        }
-
-        boolean hasKlausurTermin = nutzer.getGebuchteKlausurTermine().stream()
-                .anyMatch(termin -> termin.getModuleId() ==klausurModulId);
-
-        if (hasKlausurTermin) {
+// Überprüfen, ob der Nutzer bereits für diesen Klausurtermin gebucht hat
+        if (klausurTermin.getGebuchtVonNutzerIds().contains(nutzerId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Der Nutzer hat bereits einen Klausurtermin für dieses Modul gebucht");
         }
 
-        // Überprüfen, ob der Klausurtermin bereits ausgebucht ist
-        if (klausurTermin.getNutzerIds().size() >= klausurTermin.getMaxPlätze()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Der Klausurtermin ist bereits ausgebucht");
-        }
+        // Füge den Nutzer zum Klausurtermin hinzu
+        nutzer.getGebuchteKlausurTerminIds().add(klausurTerminId);
+        nutzerRepository.save(nutzer);
 
-        // Überprüfen, ob der Nutzer bereits für diesen Klausurtermin gebucht hat
-        if (klausurTermin.getNutzerIds().contains(nutzerId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Der Nutzer hat bereits einen Klausurtermin für dieses Modul gebucht");
-        }
-
-        // Hinzufügen des Nutzers zur Liste der Nutzer-IDs des Klausurtermins
-        klausurTermin.getNutzerIds().add(nutzerId);
-        nutzer.getGebuchteKlausurTermine().add(klausurTermin);
+        // Füge den Nutzer zur Liste der gebuchten Nutzer hinzu
+        klausurTermin.getGebuchtVonNutzerIds().add(nutzerId);
+        klausurTermin.setVerbleibendePlätze(klausurTermin.getMaxPlätze() - klausurTermin.getGebuchtVonNutzerIds().size());
+        klausurTerminRepository.save(klausurTermin);
 
         // Aktualisieren der verbleibenden Plätze
-        int remainingSeats = klausurTermin.getMaxPlätze() - klausurTermin.getNutzerIds().size();
+        int remainingSeats = klausurTermin.getMaxPlätze() - klausurTermin.getGebuchtVonNutzerIds().size();
         if (remainingSeats <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Keine verbleibenden Plätze für diesen Klausurtermin");
         }

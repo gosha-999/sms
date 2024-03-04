@@ -1,8 +1,11 @@
 package byteblaze.sms.service;
 
 import byteblaze.sms.model.Module;
+import byteblaze.sms.model.Task;
 import byteblaze.sms.repository.ModuleRepository;
 import byteblaze.sms.repository.NutzerRepository;
+import byteblaze.sms.repository.TaskRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -11,16 +14,14 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ModuleService {
 
     private final ModuleRepository moduleRepository;
     private final NutzerRepository nutzerRepository;
+    private final TaskRepository taskRepository;
 
-    @Autowired
-    public ModuleService(ModuleRepository moduleRepository, NutzerRepository nutzerRepository){
-        this.moduleRepository = moduleRepository;
-        this.nutzerRepository = nutzerRepository;
-    }
+
 
     public Module getModuleInfo(Long moduleId) {
         return moduleRepository.findById(moduleId).orElseThrow(() ->

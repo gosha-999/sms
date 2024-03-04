@@ -38,7 +38,8 @@ public class Nutzer {
     //KEY VALUE für moduleId und Noten
     private Map<Long, Double> noten = new HashMap<>();
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "gebuchte_klausurtermine")
-    private List<KlausurTermin> gebuchteKlausurTermine = new ArrayList<>();
+    @ElementCollection
+    private List<Long> gebuchteKlausurTerminIds = new ArrayList<>();
+
+
 }

@@ -19,8 +19,8 @@ public class NutzerService {
         this.nutzerRepository = nutzerRepository;
     }
 
-    public Nutzer getNutzerInfo(Long moduleId) {
-        return nutzerRepository.findById(moduleId).orElseThrow(() ->
+    public Nutzer getNutzerInfo(Long nutzerId) {
+        return nutzerRepository.findById(nutzerId).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
     }
 

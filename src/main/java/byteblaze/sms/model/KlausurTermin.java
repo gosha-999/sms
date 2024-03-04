@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -25,6 +26,6 @@ public class KlausurTermin {
     private int verbleibendePlätze;
 
     @ElementCollection
-    private List<Long> nutzerIds;
+    private List<Long> gebuchtVonNutzerIds = new ArrayList<>();
 
 }
