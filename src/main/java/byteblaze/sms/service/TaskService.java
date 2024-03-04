@@ -22,19 +22,68 @@ public class TaskService {
     private final ModuleRepository moduleRepository;
     private final NutzerRepository nutzerRepository;
 
-    public Task addTaskToModule(Long moduleId, Task task) {
 
+    //NUTZER
+    public List<Long> getTaskIdsByNutzerId(Long nutzerId) {
+        Nutzer nutzer = nutzerRepository.findById(nutzerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
+
+        return nutzer.getTaskIds();
+    }
+    public Task addTaskToNutzer(Long nutzerId, Task task) {
+        Nutzer nutzer = nutzerRepository.findById(nutzerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
+
+        task = taskRepository.save(task);
+
+        nutzer.getTaskIds().add(task.getId());
+        nutzerRepository.save(nutzer);
+
+        return task;
+    }
+
+    public void deleteTask(Long nutzerId, Long taskId) {
+        // Holen Sie den Nutzer anhand seiner ID
+        Nutzer nutzer = nutzerRepository.findById(nutzerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
+
+        // Überprüfen Sie, ob der Task dem Nutzer gehört
+        if (!nutzer.getTaskIds().contains(taskId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Der Nutzer hat keinen Zugriff auf diesen Task");
+        }
+
+        // Überprüfen, ob der Task Teil eines Moduls ist
+        if (taskRepository.existsByModuleId(taskId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Der Task ist Teil eines Moduls und kann nicht gelöscht werden");
+        }
+
+        // Löschen Sie den Task aus der Datenbank
+        nutzer.getTaskIds().remove(taskId);
+        taskRepository.deleteById(taskId);
+    }
+
+
+
+
+
+
+    //MODULE
+    public List<Long> getTaskIdsByModuleId(Long moduleId) {
+        Module modul = moduleRepository.findById(moduleId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"));
+
+        return modul.getTaskIds();
+    }
+
+    public Task addTaskToModule(Long moduleId, Task task) {
         Module module = moduleRepository.findById(moduleId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"));
 
-        task.setModuleId(moduleId);
-        Task savedTask = taskRepository.save(task);
+        task = taskRepository.save(task);
 
-        // Task-ID zur Liste der Task-IDs im Modul hinzufügen
-        module.getTaskIds().add(savedTask.getId());
-
-        // Modul mit aktualisierter Task-IDs-Liste speichern
+        module.getTaskIds().add(task.getId());
         moduleRepository.save(module);
+
         return task;
     }
 

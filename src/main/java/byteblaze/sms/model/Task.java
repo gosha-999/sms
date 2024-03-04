@@ -23,8 +23,8 @@ public class Task {
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
 
-    @Column(name = "module_id") // Hier die Änderung
-    private Long moduleId; // Änderung: Speichert nur die ID des Moduls
+    @Column(name = "module_id")
+    private Long moduleId = null; // Standardwert null
 
 
     public enum TaskStatus {

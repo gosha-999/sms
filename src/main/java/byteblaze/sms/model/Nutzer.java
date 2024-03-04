@@ -41,5 +41,10 @@ public class Nutzer {
     @ElementCollection
     private List<Long> gebuchteKlausurTerminIds = new ArrayList<>();
 
+    @ElementCollection
+    @CollectionTable(name = "nutzer_task", joinColumns = @JoinColumn(name = "nutzer_id"))
+    @Column(name = "task_id")
+    private List<Long> taskIds = new ArrayList<>();
+
 
 }

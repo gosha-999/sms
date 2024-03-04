@@ -48,6 +48,9 @@ public class EnrollmentService {
 
         nutzer.getGebuchteModule().add(module);
 
+        // Fügen Sie die Task-IDs des Moduls zur Liste der Task-IDs des Nutzers hinzu
+        nutzer.getTaskIds().addAll(module.getTaskIds());
+
         //für PAUL
         // Da die Tasks bereits mit dem Modul assoziiert sind ist keine zusätzliche Logik erforderlich
         // um die Tasks direkt dem Nutzer zuzuordnen. Der Nutzer erhält Zugriff auf die Tasks durch die Buchung des Moduls.
