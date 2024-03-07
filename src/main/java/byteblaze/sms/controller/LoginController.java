@@ -16,7 +16,7 @@ public class LoginController {
 
     private final LoginService loginService;
 
-    //LOGIN NUTZER
+    //LOGIN Nutzer - manche Methoden benutzen nur noch die ID des eingeloggten Users
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody Nutzer nutzer) {
         Long nutzerId = loginService.login(nutzer.getNutzername(), nutzer.getPassword());
@@ -27,7 +27,7 @@ public class LoginController {
         }
     }
 
-    //LOGOUT NUTZER
+    //LOGOUT Nutzer
     @PostMapping("/logout")
     public ResponseEntity<String> logout() {
         loginService.logout();

@@ -13,41 +13,42 @@ import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("enrollment")
 public class EnrollmentController {
 
     private final EnrollmentService enrollmentService;
     private final LoginService loginService;
 
 
-    //BUCHE MODUL PER MODULID
-    @PostMapping("/gebucht/{moduleID}")
+    //Buche ein Modul per moduleId für eingeloggten Nutzer
+    @PostMapping("/{moduleID}/add")
     public ResponseEntity<String> addToGebucht(@PathVariable Long moduleID) {
         enrollmentService.addToGebucht(loginService.getLoggedInUserId(), moduleID);
         return ResponseEntity.ok("Modul wurde zu gebucht");
     }
 
-    //ENTFERNE MODUL AUS BUCHUNSLISTE
-    @DeleteMapping("/gebucht/{moduleID}")
+    //entfernt das Modul per moduleId des eingeloggten Nutzers
+    @DeleteMapping("/{moduleID}/delete")
     public ResponseEntity<String> removeFromGebucht(@PathVariable Long moduleID) {
         enrollmentService.removeFromGebucht(loginService.getLoggedInUserId(), moduleID);
         return ResponseEntity.ok("Gebuchtes Modul wurde erfolgreich gelöscht");
     }
 
-    //GIBT ALLE GEBUCHTEN MODULE EINES NUTZERS ZURÜCK
-    @GetMapping("/{nutzerId}/gebucht")
-    public ResponseEntity<Set<Module>> getEnrolledModules(@PathVariable Long nutzerId) {
-        Set<Module> enrolledModules = enrollmentService.getEnrolledModules(nutzerId);
+    //gibt alle gebuchten module eines nutzers zurück
+    @GetMapping("/get")
+    public ResponseEntity<Set<Module>> getEnrolledModules() {
+        Set<Module> enrolledModules = enrollmentService.getEnrolledModules(loginService.getLoggedInUserId());
         return ResponseEntity.ok(enrolledModules);
     }
 
-    //FILTERN DER GEBUCHT LISTE NACH BENOTET TRUE FALSE
-    @GetMapping("/gebuchtfilter")
+    //filtern der Liste nach benotet(true) oder unbenotet(false)
+    @GetMapping("/filter")
     public List<Module> getBookedModulesForUser(@RequestParam(required = false) boolean benotet) {
         return enrollmentService.getBookedModules(loginService.getLoggedInUserId(), benotet);
     }
 
-    //MODUL BENOTEN
-    @PostMapping("/noten")
+    //mehrere module werden per map im body benotet bspw. moduleId{"1": 1,0}Note
+    @PostMapping("/setnoten")
     public ResponseEntity<Void> addNotesForModules(@RequestBody Map<Long, Double> moduleNotes) {
         enrollmentService.addNotesForModules(loginService.getLoggedInUserId(), moduleNotes);
         return ResponseEntity.ok().build();
@@ -60,8 +61,8 @@ public class EnrollmentController {
         return ResponseEntity.ok(allNotes);
     }
 
-    //SCHNITT ALLER NOTEN
-    @GetMapping("/durchschnittsnote")
+    //durchschnitt aller noten unter berücksichtigung aller ects
+    @GetMapping("/durchschnitt")
     public ResponseEntity<Double> getWeightedAverageGrade() {
         double averageGrade = enrollmentService.calculateWeightedAverageGrade(loginService.getLoggedInUserId());
         return ResponseEntity.ok(averageGrade);

@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
     boolean existsByModuleId(Long moduleId);
+    List<Task> findByStatus(Task.TaskStatus status);
 }
 

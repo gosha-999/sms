@@ -24,30 +24,35 @@ public class NutzerController {
     private final NutzerService nutzerService;
     private final LoginService loginService;
 
+    //GET Nutzer per ID
     @GetMapping("/{nutzerID}")
     public ResponseEntity<Nutzer> getNutzerById(@PathVariable Long nutzerID) {
         Nutzer nutzer = nutzerService.getNutzerInfo(nutzerID);
             return ResponseEntity.ok(nutzer);
     }
 
+    //ADD Nutzer (Registrierung)
     @PostMapping
     public ResponseEntity<Nutzer> addUser(@RequestBody Nutzer nutzer) {
         Nutzer newNutzer = nutzerService.addUser(nutzer);
         return ResponseEntity.created(null).body(newNutzer);
     }
 
+    //UPDATE Nutzer (nur der eingeloggte Nutzer kann seine Daten ändern)
     @PutMapping("/update")
     public ResponseEntity<Nutzer> updateUser(@RequestBody Nutzer updatedNutzer) {
         Nutzer updatedUser = nutzerService.updateUser(loginService.getLoggedInUserId(), updatedNutzer);
             return ResponseEntity.ok(updatedUser);
     }
 
+    //Löschen eines Users (nur der eingeloggte kann sich selbst löschen)
     @DeleteMapping("/delete")
     public ResponseEntity<Void> deleteUser() {
         nutzerService.deleteUser(loginService.getLoggedInUserId());
         return ResponseEntity.noContent().build();
     }
 
+    //GET alle Nutzer
     @GetMapping("/all")
     public ResponseEntity<List<Nutzer>> getAllNutzer() {
         List<Nutzer> nutzerList = nutzerService.getAllNutzer();

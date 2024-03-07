@@ -4,7 +4,6 @@ import byteblaze.sms.model.Module;
 import byteblaze.sms.service.LoginService;
 import byteblaze.sms.service.MerklisteService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,13 +12,15 @@ import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/merkliste")
 public class MerklisteController {
 
 
     private final MerklisteService merklisteService;
     private final LoginService loginService;
 
-    @PostMapping("/merkliste/module/{moduleId}")
+    //fügt das Modul der Merkliste des Nutzers per modulId hinzu
+    @PostMapping("/{moduleId}/add")
     public ResponseEntity<String> addToMerkliste(@PathVariable Long moduleId) {
         try {
             merklisteService.addToMerkliste(loginService.getLoggedInUserId(), moduleId);
@@ -29,7 +30,8 @@ public class MerklisteController {
         }
     }
 
-    @DeleteMapping("/merkliste/module/{moduleId}")
+    //löscht das Modul aus der Merkliste des Nutzers per modulId
+    @DeleteMapping("/{moduleId}/delete")
     public ResponseEntity<String> removeFromMerkliste(@PathVariable Long moduleId) {
         try {
             merklisteService.removeFromMerkliste(loginService.getLoggedInUserId(), moduleId);
@@ -39,10 +41,10 @@ public class MerklisteController {
         }
     }
 
-    //GIBT DIE MERKLISTE EINES NUTZERS AUS
-    @GetMapping("/{nutzerId}/merkliste")
-    public ResponseEntity<Set<Module>> getMerklisteByNutzerId(@PathVariable Long nutzerId) {
-        Set<Module> merkliste = merklisteService.getMerklisteByNutzerId(nutzerId);
+    //gibt die Merkliste eines Nutzers per nutzerId aus
+    @GetMapping("")
+    public ResponseEntity<Set<Module>> getMerklisteByNutzerId() {
+        Set<Module> merkliste = merklisteService.getMerklisteByNutzerId(loginService.getLoggedInUserId());
         return ResponseEntity.ok(merkliste);
     }
 }

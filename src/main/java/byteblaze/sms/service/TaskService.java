@@ -12,7 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,12 +26,34 @@ public class TaskService {
 
 
     //NUTZER
+
+    //GET TaskIds
     public List<Long> getTaskIdsByNutzerId(Long nutzerId) {
         Nutzer nutzer = nutzerRepository.findById(nutzerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
 
         return nutzer.getTaskIds();
     }
+
+
+    //GET alle Tasks eines Nutzers als Objekt
+    public List<Task> getTasksByNutzerId(Long nutzerId) {
+        Nutzer nutzer = nutzerRepository.findById(nutzerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
+
+        List<Long> taskIds = nutzer.getTaskIds();
+        List<Task> tasks = new ArrayList<>();
+
+        for (Long taskId : taskIds) {
+            Task task = taskRepository.findById(taskId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task nicht gefunden"));
+            tasks.add(task);
+        }
+
+        return tasks;
+    }
+
+
     public Task addTaskToNutzer(Long nutzerId, Task task) {
         Nutzer nutzer = nutzerRepository.findById(nutzerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
@@ -63,16 +87,16 @@ public class TaskService {
     }
 
 
-
-
-
-
     //MODULE
-    public List<Long> getTaskIdsByModuleId(Long moduleId) {
-        Module modul = moduleRepository.findById(moduleId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"));
+    public List<Task> getTasksByModuleId(Long moduleId) {
+        List<Long> taskIds = moduleRepository.findById(moduleId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"))
+                .getTaskIds();
 
-        return modul.getTaskIds();
+        return taskIds.stream()
+                .map(taskId -> taskRepository.findById(taskId)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task nicht gefunden")))
+                .collect(Collectors.toList());
     }
 
     public Task addTaskToModule(Long moduleId, Task task) {
@@ -86,6 +110,16 @@ public class TaskService {
 
         return task;
     }
+
+    //FILTER
+    public List<Task> getTasksByStatus(Task.TaskStatus status) {
+        List<Task> allTasks = taskRepository.findAll();
+        return allTasks.stream()
+                .filter(task -> task.getStatus() == status)
+                .collect(Collectors.toList());
+    }
+
+
 
 }
 
