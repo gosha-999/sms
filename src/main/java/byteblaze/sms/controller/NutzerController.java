@@ -32,7 +32,7 @@ public class NutzerController {
     }
 
     //ADD Nutzer (Registrierung)
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<Nutzer> addUser(@RequestBody Nutzer nutzer) {
         Nutzer newNutzer = nutzerService.addUser(nutzer);
         return ResponseEntity.created(null).body(newNutzer);
