@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Module</title>
+</head>
+<body>
+<h1>Add Module</h1>
+<form id="add-module-form">
+    <label for="beschreibung">Beschreibung:</label><br>
+    <input type="text" id="beschreibung" name="beschreibung" required><br>
+    <label for="ects">ECTS:</label><br>
+    <input type="number" id="ects" name="ects" required><br>
+    <label for="dozent">Dozent:</label><br>
+    <input type="text" id="dozent" name="dozent" required><br>
+    <label for="lehrstuhl">Lehrstuhl:</label><br>
+    <input type="text" id="lehrstuhl" name="lehrstuhl" required><br>
+    <label for="regeltermin">Regeltermin:</label><br>
+    <input type="text" id="regeltermin" name="regeltermin" required><br>
+    <label for="literaturempfehlung">Literaturempfehlung:</label><br>
+    <input type="text" id="literaturempfehlung" name="literaturempfehlung"><br>
+    <label for="minSemester">Mindestsemester:</label><br>
+    <input type="number" id="minSemester" name="minSemester" required><br><br>
+    <button type="submit">Modul erstellen</button>
+</form>
+
+<h2>Liste aller Module</h2>
+<table id="module-table">
+    <thead>
+    <tr>
+        <th>Module ID</th>
+        <th>Beschreibung</th>
+        <th>ECTS</th>
+        <th>Dozent</th>
+        <th>Lehrstuhl</th>
+        <th>Regeltermin</th>
+        <th>Literaturempfehlung</th>
+        <th>Mindestsemester</th>
+    </tr>
+    </thead>
+    <tbody id="module-list">
+    <!-- Hier werden die Module angezeigt -->
+    </tbody>
+</table>
+
+<script>
+    document.getElementById('add-module-form').addEventListener('submit', async function(event) {
+        event.preventDefault(); // Verhindert das Standardverhalten des Formulars (Seitenneuladen)
+
+        // Extrahiere die Daten aus den Formularfeldern
+        const formData = {
+            beschreibung: document.getElementById('beschreibung').value,
+            ects: document.getElementById('ects').value,
+            dozent: document.getElementById('dozent').value,
+            lehrstuhl: document.getElementById('lehrstuhl').value,
+            regeltermin: document.getElementById('regeltermin').value,
+            literaturempfehlung: document.getElementById('literaturempfehlung').value,
+            minSemester: document.getElementById('minSemester').value
+        };
+
+        // Sende die Daten an den Server
+        const response = await fetch('/modules/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json' // Setze den Content-Type auf application/json
+            },
+            body: JSON.stringify(formData) // Konvertiere das Objekt in einen JSON-String
+        });
+
+        // Überprüfe die Antwort des Servers
+        if (response.ok) {
+            alert('Modul erfolgreich erstellt!');
+            // Hier könntest du eine Weiterleitung oder eine andere Aktion einfügen
+        } else {
+            alert('Fehler beim Erstellen des Moduls');
+        }
+    });
+
+    // Funktion zum Laden und Anzeigen der Module
+    async function loadModules() {
+        const response = await fetch('/modules/all');
+        const modules = await response.json();
+        const moduleList = document.getElementById('module-list');
+
+        // Leere die Liste, bevor die Module hinzugefügt werden
+        moduleList.innerHTML = '';
+
+        // Füge jedes Modul der Liste hinzu
+        modules.forEach(module => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${module.moduleId}</td>
+                <td>${module.beschreibung}</td>
+                <td>${module.ects}</td>
+                <td>${module.dozent}</td>
+                <td>${module.lehrstuhl}</td>
+                <td>${module.regeltermin}</td>
+                <td>${module.literaturempfehlung}</td>
+                <td>${module.minSemester}</td>
+            `;
+            moduleList.appendChild(row);
+        });
+    }
+
+    // Lade die Module beim Laden der Seite
+    window.addEventListener('load', loadModules);
+</script>
+</body>
+</html>

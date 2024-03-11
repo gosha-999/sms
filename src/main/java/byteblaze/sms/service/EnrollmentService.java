@@ -33,6 +33,11 @@ public class EnrollmentService {
         Module module = moduleRepository.findById(moduleId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"));
 
+        // Überprüfen Sie, ob das Semester des Nutzers dem Semester des Moduls entspricht oder höher ist
+        if (nutzer.getSemester() < module.getMinSemester()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Der Nutzer darf das Modul nicht buchen, da sein Semester niedriger ist");
+        }
+
         if (nutzer.getGebuchteModule().contains(module)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Der Nutzer hat das Modul bereits gebucht");
         }
@@ -48,13 +53,13 @@ public class EnrollmentService {
 
         nutzer.getGebuchteModule().add(module);
 
+        // Überprüfen Sie, ob die Modul-ID in der Merkliste des Nutzers vorhanden ist
+        if (nutzer.getMerkliste().contains(module)) {
+            nutzer.getMerkliste().remove(module); // Entfernen Sie das Modul aus der Merkliste des Nutzers
+        }
+
         // Fügen Sie die Task-IDs des Moduls zur Liste der Task-IDs des Nutzers hinzu
         nutzer.getTaskIds().addAll(module.getTaskIds());
-
-        //für PAUL
-        // Da die Tasks bereits mit dem Modul assoziiert sind ist keine zusätzliche Logik erforderlich
-        // um die Tasks direkt dem Nutzer zuzuordnen. Der Nutzer erhält Zugriff auf die Tasks durch die Buchung des Moduls.
-        // Stelle sicher, dass die Anwendungslogik oder das Frontend entsprechend gestaltet ist, um diese Beziehung darzustellen.
 
         nutzerRepository.save(nutzer);
     }

@@ -22,6 +22,7 @@ public class Module {
     private String lehrstuhl;
     private String regeltermin;
     private String literaturempfehlung;
+    private int minSemester;
 
     private double durchschnittlicheBewertung;
     private int anzahlBewertungen;

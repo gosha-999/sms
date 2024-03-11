@@ -24,7 +24,7 @@ public class EnrollmentController {
     @PostMapping("/{moduleID}/add")
     public ResponseEntity<String> addToGebucht(@PathVariable Long moduleID) {
         enrollmentService.addToGebucht(loginService.getLoggedInUserId(), moduleID);
-        return ResponseEntity.ok("Modul wurde zu gebucht");
+        return ResponseEntity.ok("Modul wurde erfolgreich gebucht");
     }
 
     //entfernt das Modul per moduleId des eingeloggten Nutzers

@@ -16,6 +16,7 @@ public class Nutzer {
     private String nutzername;
     private String password;
     private String details;
+    private int semester; // Semester des Nutzers
     @ManyToMany
     @JoinTable(name = "Merkliste",
             joinColumns = @JoinColumn(name = "nutzer_id"),
