@@ -44,6 +44,7 @@ public class NutzerService {
         existingNutzer.setEmail(updatedNutzer.getEmail());
         existingNutzer.setNutzername(updatedNutzer.getNutzername());
         existingNutzer.setPassword(updatedNutzer.getPassword());
+        existingNutzer.setSemester(updatedNutzer.getSemester());
 
         return nutzerRepository.save(existingNutzer);
     }

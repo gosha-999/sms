@@ -4,6 +4,7 @@ import byteblaze.sms.model.Task;
 import byteblaze.sms.service.LoginService;
 import byteblaze.sms.service.TaskService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,55 +18,69 @@ public class TaskController {
     private final TaskService taskService;
     private final LoginService loginService;
 
-    //füge ein Task einem Nutzer zu
+    // Add a task to a user
     @PostMapping("/add")
-    public ResponseEntity<Task> addTaskToNutzer(@RequestBody Task task) {
-        Task addedTask = taskService.addTaskToNutzer(loginService.getLoggedInUserId(), task);
+    public ResponseEntity<?> addTaskToNutzer(@RequestBody Task task, @RequestHeader("sessionId") String sessionId) {
+        if (!loginService.isValidSession(sessionId)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Ungültige Sitzung");
+        }
+        Long userId = loginService.getUserIdFromSession(sessionId);
+        Task addedTask = taskService.addTaskToNutzer(userId, task);
         return ResponseEntity.ok(addedTask);
     }
 
-    //UNNÖTIG
-    //rufe alle TaskIDs eines Nutzers auf
+    // This endpoint was marked as unnecessary
+    // Get task IDs by user ID
     @GetMapping("/get")
-    public ResponseEntity<List<Long>> getTaskIdsByNutzerId() {
-        List<Long> taskIds = taskService.getTaskIdsByNutzerId(loginService.getLoggedInUserId());
+    public ResponseEntity<?> getTaskIdsByNutzerId(@RequestHeader("sessionId") String sessionId) {
+        if (!loginService.isValidSession(sessionId)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Ungültige Sitzung");
+        }
+        Long userId = loginService.getUserIdFromSession(sessionId);
+        List<Long> taskIds = taskService.getTaskIdsByNutzerId(userId);
         return ResponseEntity.ok(taskIds);
     }
 
-    //Ruft alle Tasks eines Nutzers auf
+    // Get all tasks by user ID
     @GetMapping("/tasks")
-    public ResponseEntity<List<Task>> getTasksByNutzerId() {
-        Long nutzerId = loginService.getLoggedInUserId();
-        List<Task> tasks = taskService.getTasksByNutzerId(nutzerId);
+    public ResponseEntity<?> getTasksByNutzerId(@RequestHeader("sessionId") String sessionId) {
+        if (!loginService.isValidSession(sessionId)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Ungültige Sitzung");
+        }
+        Long userId = loginService.getUserIdFromSession(sessionId);
+        List<Task> tasks = taskService.getTasksByNutzerId(userId);
         return ResponseEntity.ok(tasks);
     }
 
-    //Nutzer löscht einen Task per taskId
+    // User deletes a task by task ID
     @DeleteMapping("/{taskId}")
-    public ResponseEntity<String> deleteTask(@PathVariable Long taskId) {
-        taskService.deleteTask(loginService.getLoggedInUserId(), taskId);
+    public ResponseEntity<?> deleteTask(@PathVariable Long taskId, @RequestHeader("sessionId") String sessionId) {
+        if (!loginService.isValidSession(sessionId)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Ungültige Sitzung");
+        }
+        Long userId = loginService.getUserIdFromSession(sessionId);
+        taskService.deleteTask(userId, taskId);
         return ResponseEntity.ok("Task erfolgreich gelöscht");
     }
 
-    //abrufen aller TaskIds eines Moduls
+    // Get all tasks by module ID
     @GetMapping("/{moduleId}")
     public ResponseEntity<List<Task>> getTasksByModuleId(@PathVariable Long moduleId) {
         List<Task> tasks = taskService.getTasksByModuleId(moduleId);
         return ResponseEntity.ok(tasks);
     }
 
-    //fügt einem Modul per moduleId einen Task hinzu
+    // Adds a task to a module by module ID
     @PostMapping("/{moduleId}/add")
     public ResponseEntity<Task> addTaskToModule(@PathVariable Long moduleId, @RequestBody Task task) {
         Task addedTask = taskService.addTaskToModule(moduleId, task);
         return ResponseEntity.ok(addedTask);
     }
 
-    // Endpunkt zum Abrufen aller Tasks mit einem bestimmten Status
+    // Endpoint for getting all tasks with a specific status
     @GetMapping("/filter")
     public ResponseEntity<List<Task>> getTasksByStatus(@RequestParam Task.TaskStatus status) {
         List<Task> tasks = taskService.getTasksByStatus(status);
         return ResponseEntity.ok(tasks);
     }
 }
-

@@ -7,4 +7,6 @@ public interface NutzerRepository extends JpaRepository<Nutzer, Long> {
     boolean existsByGebuchteModuleModuleId(Long moduleId);
 
     Nutzer findByNutzernameAndPassword(String nutzername, String password);
+
+    Nutzer findByNutzername(String nutzername);
 }

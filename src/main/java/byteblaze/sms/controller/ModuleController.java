@@ -60,9 +60,19 @@ public class ModuleController {
     //bewertet ein Modul per moduleId
     // im Body wird das Rating übergeben (1-5)
     @PostMapping("/{moduleId}/rating")
-    public ResponseEntity<String> bewerteModul(@PathVariable Long moduleId, @RequestBody int rating) {
-        ratingService.addModuleRating(moduleId, loginService.getLoggedInUserId(), rating);
+    public ResponseEntity<String> bewerteModul(@PathVariable Long moduleId, @RequestHeader("sessionId") String sessionId, @RequestBody int rating) {
+        if (!loginService.isValidSession(sessionId)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Ungültige Sitzung");
+        }
+
+        Long userId = loginService.getUserIdFromSession(sessionId);
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Nicht authentifiziert");
+        }
+
+        ratingService.addModuleRating(moduleId, userId, rating);
         return ResponseEntity.status(HttpStatus.CREATED).body("Bewertung erfolgreich hinzugefügt");
     }
+
 
 }

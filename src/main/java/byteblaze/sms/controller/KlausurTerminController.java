@@ -30,13 +30,20 @@ public class KlausurTerminController {
         return ResponseEntity.ok(klausurTermine);
     }
 
-    @PostMapping("/{klausurTerminId}")
-    public ResponseEntity<?> bucheKlausurtermin(@PathVariable Long klausurTerminId) {
+    @PostMapping("/{klausurTerminId}/buchen")
+    public ResponseEntity<?> bucheKlausurtermin(@PathVariable Long klausurTerminId, @RequestHeader("sessionId") String sessionId) {
+        if (!loginService.isValidSession(sessionId)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Ungültige Sitzung");
+        }
+        Long userId = loginService.getUserIdFromSession(sessionId);
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Nutzer nicht identifiziert");
+        }
         try {
-            klausurTerminService.bucheKlausurtermin(loginService.getLoggedInUserId(), klausurTerminId);
+            klausurTerminService.bucheKlausurtermin(userId, klausurTerminId);
             return ResponseEntity.ok("Klausurtermin erfolgreich gebucht");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getCause());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 }

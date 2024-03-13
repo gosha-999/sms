@@ -15,36 +15,56 @@ import java.util.Set;
 @RequestMapping("/merkliste")
 public class MerklisteController {
 
-
     private final MerklisteService merklisteService;
     private final LoginService loginService;
 
-    //fügt das Modul der Merkliste des Nutzers per modulId hinzu
+    // Fügt das Modul der Merkliste des Nutzers per modulId hinzu
     @PostMapping("/{moduleId}/add")
-    public ResponseEntity<String> addToMerkliste(@PathVariable Long moduleId) {
+    public ResponseEntity<String> addToMerkliste(@PathVariable Long moduleId, @RequestHeader("sessionId") String sessionId) {
+        if (!loginService.isValidSession(sessionId)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Ungültige Sitzung");
+        }
+        Long userId = loginService.getUserIdFromSession(sessionId);
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Nutzer nicht identifiziert");
+        }
         try {
-            merklisteService.addToMerkliste(loginService.getLoggedInUserId(), moduleId);
+            merklisteService.addToMerkliste(userId, moduleId);
             return ResponseEntity.ok("Modul wurde zur Merkliste hinzugefügt");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Fehler beim Hinzufügen zum Merkliste");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Fehler beim Hinzufügen zur Merkliste");
         }
     }
 
-    //löscht das Modul aus der Merkliste des Nutzers per modulId
+    // Löscht das Modul aus der Merkliste des Nutzers per modulId
     @DeleteMapping("/{moduleId}/delete")
-    public ResponseEntity<String> removeFromMerkliste(@PathVariable Long moduleId) {
+    public ResponseEntity<String> removeFromMerkliste(@PathVariable Long moduleId, @RequestHeader("sessionId") String sessionId) {
+        if (!loginService.isValidSession(sessionId)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Ungültige Sitzung");
+        }
+        Long userId = loginService.getUserIdFromSession(sessionId);
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Nutzer nicht identifiziert");
+        }
         try {
-            merklisteService.removeFromMerkliste(loginService.getLoggedInUserId(), moduleId);
+            merklisteService.removeFromMerkliste(userId, moduleId);
             return ResponseEntity.ok("Modul wurde aus der Merkliste entfernt");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Fehler beim Entfernen aus der Merkliste");
         }
     }
 
-    //gibt die Merkliste eines Nutzers per nutzerId aus
+    // Gibt die Merkliste eines Nutzers per nutzerId aus
     @GetMapping("")
-    public ResponseEntity<Set<Module>> getMerklisteByNutzerId() {
-        Set<Module> merkliste = merklisteService.getMerklisteByNutzerId(loginService.getLoggedInUserId());
+    public ResponseEntity<Set<Module>> getMerklisteByNutzerId(@RequestHeader("sessionId") String sessionId) {
+        if (!loginService.isValidSession(sessionId)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Set.of());
+        }
+        Long userId = loginService.getUserIdFromSession(sessionId);
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Set<Module> merkliste = merklisteService.getMerklisteByNutzerId(userId);
         return ResponseEntity.ok(merkliste);
     }
 }

@@ -1,36 +1,45 @@
 package byteblaze.sms.controller;
 
-import byteblaze.sms.model.Nutzer;
 import byteblaze.sms.service.LoginService;
-import lombok.RequiredArgsConstructor;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequiredArgsConstructor
 public class LoginController {
 
-    private final LoginService loginService;
+    @Autowired
+    private LoginService loginService;
 
-    //LOGIN Nutzer - manche Methoden benutzen nur noch die ID des eingeloggten Users
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody Nutzer nutzer) {
-        Long nutzerId = loginService.login(nutzer.getNutzername(), nutzer.getPassword());
-        if (nutzerId != null) {
-            return ResponseEntity.ok("Login erfolgreich. Nutzer-ID: " + nutzerId);
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+        String nutzername = loginRequest.getNutzername();
+        String password = loginRequest.getPassword();
+        if (loginService.authenticate(nutzername, password)) {
+            Long userId = loginService.getUserIdByUsername(nutzername);
+            String sessionId = loginService.createSession(userId);
+            return ResponseEntity.ok(sessionId);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Ungültige Anmeldeinformationen.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
         }
     }
 
-    //LOGOUT Nutzer
     @PostMapping("/logout")
-    public ResponseEntity<String> logout() {
-        loginService.logout();
-        return ResponseEntity.ok("Logout erfolgreich.");
+    public ResponseEntity<String> logout(@RequestHeader String sessionId) {
+        if (loginService.isValidSession(sessionId)) {
+            loginService.logout(sessionId);
+            return ResponseEntity.ok("Logout successful");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid session");
+        }
+    }
+    @Data
+    public static class LoginRequest {
+        private String nutzername;
+        private String password;
     }
 }
+
+
