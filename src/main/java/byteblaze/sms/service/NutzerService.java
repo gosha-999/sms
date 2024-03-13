@@ -41,7 +41,7 @@ public class NutzerService {
                 .orElseThrow(() -> {throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden");
         });
 
-        existingNutzer.setDetails(updatedNutzer.getDetails());
+        existingNutzer.setEmail(updatedNutzer.getEmail());
         existingNutzer.setNutzername(updatedNutzer.getNutzername());
         existingNutzer.setPassword(updatedNutzer.getPassword());
 

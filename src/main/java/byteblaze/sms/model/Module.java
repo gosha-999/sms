@@ -16,6 +16,7 @@ public class Module {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long moduleId;
 
+    private String name;
     private String beschreibung;
     private int ects;
     private String dozent;

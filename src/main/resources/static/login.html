@@ -2,46 +2,178 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login Screen</title>
+    <link rel="stylesheet" href="./login.css">
+    <style>
+        .validation-error {
+            color: red;
+            font-size: 0.8rem;
+        }
+    </style>
 </head>
 <body>
-<h1>Login</h1>
-<form id="login-form">
-    <label for="username">Benutzername:</label><br>
-    <input type="text" id="username" name="username" required><br>
-    <label for="password">Passwort:</label><br>
-    <input type="password" id="password" name="password" required><br><br>
-    <button type="submit">Einloggen</button>
-</form>
+<header>
+    <div class="logreg-heading">
+        <strong class="logreg-heading-text">Anmelden</strong>
+    </div>
+</header>
+<div class="container">
+    <div class="loginRegister">
+        <div class="loginBlock" id="loginBlock">
+            <strong id="ueberschrift-login">Login</strong>
+            <form id="loginForm">
+                <span class="form-row">
+                    <label class="form-row-label" for="login-name">Nutzername:</label>
+                    <input class="form-row-input" type="text" name="login-name" id="login-name" required>
+                </span>
+                <span class="form-row">
+                    <label class="form-row-label" for="login-passwort">Passwort:</label>
+                    <input class="form-row-input" type="password" name="login-name" id="login-passwort" required onmousedown="this.type='text'" onmouseup="this.type='password'" onmouseout="this.type='password'">
+                </span>
+                <button type="submit" class="buttons">Anmelden</button>
+            </form>
+        </div>
+
+        <div class="registerBlock" id="registerBlock">
+            <strong id="ueberschrift-registrieren">Registrieren</strong>
+            <form id="registerForm">
+                <span class="form-row">
+                    <label class="form-row-label" for="register-name">Nutzername: </label>
+                    <input class="form-row-input" type="text" name="login-name" id="register-name" required>
+                </span>
+
+                <span class="form-row">
+                    <label class="form-row-label" for="register-email">Email: </label>
+                    <input class="form-row-input" type="email" name="register-email" id="register-email" required>
+                    <span id="email-validation-error" class="validation-error"></span>
+                </span>
+
+                <span class="form-row">
+                    <label class="form-row-label" for="register-passwort">Passwort: </label>
+                    <input class="form-row-input" type="password" name="register-passwort" id="register-passwort" required onmousedown="this.type='text'" onmouseup="this.type='password'" onmouseout="this.type='password'">
+                </span>
+
+                <span class="form-row">
+                    <label class="form-row-label" for="register-passwort2">Passwort-Wiederholen: </label>
+                    <input class="form-row-input" type="password" name="register-passwort2" id="register-passwort2" required>
+                    <span id="password-match-error" class="validation-error"></span>
+                </span>
+                <span class="form-row-buttons">
+                    <button type="submit" class="form-row-buttons">Registrieren</button>
+                </span>
+            </form>
+        </div>
+
+    </div>
+</div>
 
 <script>
-    document.getElementById('login-form').addEventListener('submit', async function(event) {
-        event.preventDefault(); // Verhindert das Standardverhalten des Formulars (Seitenneuladen)
+    document.getElementById('loginForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const username = document.getElementById('login-name').value;
+        const password = document.getElementById('login-passwort').value;
+        if (!username.trim() || !password.trim()) {
+            showAlert('Bitte füllen Sie alle Felder aus.');
+            return;
+        }
+        loginUser(username, password);
+    });
 
-        // Extrahiere die Daten aus den Formularfeldern
+    document.getElementById('registerForm').addEventListener('submit', async function(event){
+        event.preventDefault();
+
+        const username = document.getElementById('register-name').value;
+        const email = document.getElementById('register-email').value;
+        const password = document.getElementById('register-passwort').value;
+        const confirmPassword = document.getElementById('register-passwort2').value;
+
+        if (!username.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
+            showAlert('Bitte füllen Sie alle Felder aus.');
+            return;
+        }
+
+        // Email-Validierung
+        if (!validateEmail(email)) {
+            showAlert('Ungültige E-Mail-Adresse');
+            return;
+        }
+
+        // Passwort-Validierung
+        const passwordValidationResult = checkPassword(password);
+        if (passwordValidationResult !== 'valid') {
+            showAlert(passwordValidationResult);
+            return;
+        }
+
+        // Überprüfen, ob die Passwörter übereinstimmen
+        if (password !== confirmPassword) {
+            showAlert('Passwörter stimmen nicht überein');
+            return;
+        }
+
         const formData = {
-            nutzername: document.getElementById('username').value,
-            password: document.getElementById('password').value
+            nutzername: username,
+            password: password,
+            email: email,
         };
 
-        // Sende die Anmeldeinformationen an den Server
+        const response = await fetch('/nutzer/add',{
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+            // Anmeldung mit den registrierten Daten durchführen
+            loginUser(username, password);
+        } else {
+            showAlert('Ungültige Registrierinformationen.');
+        }
+    });
+
+    // Email-Validierungsfunktion
+    function validateEmail(email) {
+        const re = /\S+@\S+\.\S+/;
+        return re.test(email);
+    }
+
+    // Funktion zum Anmelden eines Benutzers
+    async function loginUser(username, password) {
+        const formData = {
+            nutzername: username,
+            password: password
+        };
+
         const response = await fetch('/login', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json' // Setze den Content-Type auf application/json
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify(formData) // Konvertiere das Objekt in einen JSON-String
+            body: JSON.stringify(formData)
         });
 
-        // Überprüfe die Antwort des Servers
         if (response.ok) {
-            // Weiterleitung zur Indexseite nach erfolgreichem Login
             window.location.href = '/index.html';
         } else {
-            alert('Ungültige Anmeldeinformationen.');
+            showAlert('Ungültige Anmeldeinformationen.');
         }
-    });
+    }
+
+    // Funktion zum Anzeigen von Popup-Alerts für Fehlermeldungen
+    function showAlert(message) {
+        alert(message);
+    }
+
+    // Funktion zur Überprüfung des Passworts auf bestimmte Anforderungen
+    function checkPassword(password) {
+        const re = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+}{"':;?/>.<,]).{6,}$/;
+        if (!re.test(password)) {
+            return 'Passwort muss mindestens 6 Zeichen lang sein und mindestens einen Großbuchstaben, eine Zahl und ein Sonderzeichen enthalten.';
+        }
+        return 'valid';
+    }
 </script>
 
 </body>

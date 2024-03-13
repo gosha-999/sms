@@ -36,6 +36,7 @@ public class ModuleService {
         Module existingModule = moduleRepository.findById(moduleId).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"));
 
+        existingModule.setName(updatedModule.getName());
         existingModule.setBeschreibung(updatedModule.getBeschreibung());
         existingModule.setEcts(updatedModule.getEcts());
         existingModule.setDozent(updatedModule.getDozent());
