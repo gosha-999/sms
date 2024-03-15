@@ -28,7 +28,7 @@
                 </span>
                 <span class="form-row">
                     <label class="form-row-label" for="login-passwort">Passwort:</label>
-                    <input class="form-row-input" type="password" name="login-name" id="login-passwort" required>
+                    <input class="form-row-input" type="password" name="login-passwort" id="login-passwort">
                 </span>
                 <button type="submit" class="buttons">Anmelden</button>
             </form>
@@ -38,32 +38,29 @@
             <strong id="ueberschrift-registrieren">Registrieren</strong>
             <form id="registerForm">
                 <span class="form-row">
-                    <label class="form-row-label" for="register-name">Nutzername: </label>
-                    <input class="form-row-input" type="text" name="login-name" id="register-name" required>
+                    <label class="form-row-label" for="register-name">Nutzername:</label>
+                    <input class="form-row-input" type="text" name="register-name" id="register-name" required>
                 </span>
 
                 <span class="form-row">
-                    <label class="form-row-label" for="register-email">Email: </label>
+                    <label class="form-row-label" for="register-email">Email:</label>
                     <input class="form-row-input" type="email" name="register-email" id="register-email" required>
                     <span id="email-validation-error" class="validation-error"></span>
                 </span>
 
                 <span class="form-row">
-                    <label class="form-row-label" for="register-passwort">Passwort: </label>
+                    <label class="form-row-label" for="register-passwort">Passwort:</label>
                     <input class="form-row-input" type="password" name="register-passwort" id="register-passwort" required>
                 </span>
 
                 <span class="form-row">
-                    <label class="form-row-label" for="register-passwort2">Passwort-Wiederholen: </label>
+                    <label class="form-row-label" for="register-passwort2">Passwort wiederholen:</label>
                     <input class="form-row-input" type="password" name="register-passwort2" id="register-passwort2" required>
                     <span id="password-match-error" class="validation-error"></span>
                 </span>
-                <span class="form-row-buttons">
-                    <button type="submit" class="form-row-buttons">Registrieren</button>
-                </span>
+                <button type="submit" class="form-row-buttons">Registrieren</button>
             </form>
         </div>
-
     </div>
 </div>
 
@@ -72,8 +69,8 @@
         event.preventDefault();
         const username = document.getElementById('login-name').value;
         const password = document.getElementById('login-passwort').value;
-        if (!username.trim() || !password.trim()) {
-            showAlert('Bitte füllen Sie alle Felder aus.');
+        if (!username.trim()) {
+            showAlert('Bitte geben Sie einen Nutzernamen ein.');
             return;
         }
         loginUser(username, password);
@@ -81,7 +78,6 @@
 
     document.getElementById('registerForm').addEventListener('submit', async function(event){
         event.preventDefault();
-
         const username = document.getElementById('register-name').value;
         const email = document.getElementById('register-email').value;
         const password = document.getElementById('register-passwort').value;
@@ -91,21 +87,15 @@
             showAlert('Bitte füllen Sie alle Felder aus.');
             return;
         }
-
-        // Email-Validierung
         if (!validateEmail(email)) {
             showAlert('Ungültige E-Mail-Adresse');
             return;
         }
-
-        // Passwort-Validierung
         const passwordValidationResult = checkPassword(password);
         if (passwordValidationResult !== 'valid') {
             showAlert(passwordValidationResult);
             return;
         }
-
-        // Überprüfen, ob die Passwörter übereinstimmen
         if (password !== confirmPassword) {
             showAlert('Passwörter stimmen nicht überein');
             return;
@@ -117,7 +107,7 @@
             email: email,
         };
 
-        const response = await fetch('/nutzer/add',{
+        const response = await fetch('/nutzer/add', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -126,20 +116,12 @@
         });
 
         if (response.ok) {
-            // Anmeldung mit den registrierten Daten durchführen
             loginUser(username, password);
         } else {
             showAlert('Ungültige Registrierinformationen.');
         }
     });
 
-    // Email-Validierungsfunktion
-    function validateEmail(email) {
-        const re = /\S+@\S+\.\S+/;
-        return re.test(email);
-    }
-
-    // Funktion zum Anmelden eines Benutzers
     async function loginUser(username, password) {
         const formData = {
             nutzername: username,
@@ -155,18 +137,23 @@
         });
 
         if (response.ok) {
-            window.location.href = '/index.html';
+            const data = await response.json();
+            localStorage.setItem('sessionId', data.sessionId);
+            window.location.href = '/dashboardmike.html';
         } else {
             showAlert('Ungültige Anmeldeinformationen.');
         }
     }
 
-    // Funktion zum Anzeigen von Popup-Alerts für Fehlermeldungen
+    function validateEmail(email) {
+        const re = /\S+@\S+\.\S+/;
+        return re.test(email);
+    }
+
     function showAlert(message) {
         alert(message);
     }
 
-    // Funktion zur Überprüfung des Passworts auf bestimmte Anforderungen
     function checkPassword(password) {
         const re = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+}{"':;?/>.<,]).{6,}$/;
         if (!re.test(password)) {

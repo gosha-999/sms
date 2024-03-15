@@ -27,6 +27,17 @@ public class NutzerController {
         return ResponseEntity.ok(nutzer);
     }
 
+    //Nutzerinfos über SessionID
+    @GetMapping("/info")
+    public ResponseEntity<Nutzer> getNutzerInfo(@RequestHeader("sessionId") String sessionId) {
+        Long userId = loginService.getUserIdFromSession(sessionId);
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+        Nutzer nutzer = nutzerService.getNutzerInfo(userId);
+        return ResponseEntity.ok(nutzer);
+    }
+
     @PostMapping("/add")
     public ResponseEntity<Nutzer> addUser(@RequestBody Nutzer nutzer) {
         Nutzer newNutzer = nutzerService.addUser(nutzer);
