@@ -71,7 +71,7 @@ public class EnrollmentService {
         Module module = moduleRepository.findById(moduleId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"));
 
-        nutzer.getMerkliste().remove(module);
+        nutzer.getGebuchteModule().remove(module);
         nutzerRepository.save(nutzer);
     }
 
