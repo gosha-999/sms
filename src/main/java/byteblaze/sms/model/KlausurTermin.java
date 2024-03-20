@@ -19,7 +19,7 @@ public class KlausurTermin {
     private Long moduleId;
 
 
-    @JsonFormat(pattern = "dd.MM.yyyy")
+
     private LocalDate datum;
     private String klausurName;
     private int maxPlätze;

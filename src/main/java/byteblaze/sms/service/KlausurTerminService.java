@@ -28,6 +28,7 @@ public class KlausurTerminService {
 
         // Setzen der Modul-ID für den Klausurtermin
         klausurTermin.setModuleId(moduleId);
+        klausurTermin.setVerbleibendePlätze(klausurTermin.getMaxPlätze()); // Setzen der verbleibenden Plätze
 
         // Speichern des Klausurtermins
         klausurTerminRepository.save(klausurTermin);

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header';
 import DashboardService from './DashboardService';
+import ModuleService from "./ModuleService";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faBookmark, faCheck } from '@fortawesome/free-solid-svg-icons';
 
@@ -20,7 +21,7 @@ function Dashboard() {
                 const data = await DashboardService.fetchModules();
                 setModules(data);
             } catch (error) {
-                console.error('Fehler beim Laden der Module:', error);
+                console.error('Fehler beim Laden der AddModule:', error);
             }
         };
 
@@ -32,7 +33,7 @@ function Dashboard() {
                     setBookedModules(data);
                 }
             } catch (error) {
-                console.error('Fehler beim Laden der gebuchten Module:', error);
+                console.error('Fehler beim Laden der gebuchten AddModule:', error);
             }
         };
 
@@ -76,7 +77,7 @@ function Dashboard() {
                 console.log(moduleId);
                 await DashboardService.removeBookedModule(sessionId, moduleId);
                 const updatedBookedModules = await DashboardService.fetchBookedModules(sessionId);
-                setBookedModules(updatedBookedModules); // Korrekte Aktualisierung der gebuchten Module
+                setBookedModules(updatedBookedModules); // Korrekte Aktualisierung der gebuchten AddModule
             } catch (error) {
                 console.error('Fehler beim Entfernen des Moduls:', error);
                 alert(error.message);
@@ -96,7 +97,7 @@ function Dashboard() {
                     return { ...module, bookedModuleId: bookedModule.id };
                 });
             case 'wishlist':
-                // Filter die Module, die in der Merkliste vorhanden sind
+                // Filter die AddModule, die in der Merkliste vorhanden sind
                 return modules.filter(module =>
                     merkliste.some(merklisteItem => merklisteItem.moduleId === module.moduleId)
                 ).map(module => {
@@ -114,7 +115,7 @@ function Dashboard() {
     };
 
     const handleAddModule = () => {
-        navigate('/module');
+        navigate('/addmodule');
         console.log("Öffnen des Formulars zum Hinzufügen eines neuen Moduls");
     };
 
@@ -148,6 +149,11 @@ function Dashboard() {
         }
     };
 
+    // Funktion zur Navigation zur Detailansicht eines Moduls
+    const navigateToModuleDetail = (moduleId) => {
+        navigate(`/moduledetail/${moduleId}`);
+    };
+
 
     return (
         <div>
@@ -175,7 +181,10 @@ function Dashboard() {
                         <li key={module.moduleId}
                             className="list-group-item d-flex justify-content-between align-items-center">
                             <div>
-                                <div>{module.name}</div>
+                                <div style={{fontWeight: 'bold', cursor: 'pointer'}}
+                                     onClick={() => navigateToModuleDetail(module.moduleId)}>
+                                    {module.name}
+                                </div>
                                 <div>Ects: {module.ects}</div>
                                 <div>Dozent: {module.dozent}</div>
                                 <div>Min. Semester: {module.minSemester}</div>

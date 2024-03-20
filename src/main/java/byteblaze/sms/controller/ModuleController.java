@@ -50,7 +50,7 @@ public class ModuleController {
         return ResponseEntity.noContent().build();
     }
 
-    //gibt alle existierenden Module zurück (Modulübersicht)
+    //gibt alle existierenden AddModule zurück (Modulübersicht)
     @GetMapping("/all")
     public ResponseEntity<List<Module>> getAllModules() {
         List<Module> modules = moduleService.getAllModules();

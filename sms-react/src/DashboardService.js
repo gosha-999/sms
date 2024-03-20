@@ -9,7 +9,7 @@ export const fetchModules = async () => {
         const response = await axios.get(`${BASE_URL}/modules/all`);
         return response.data;
     } catch (error) {
-        throw new Error('Fehler beim Laden der Module');
+        throw new Error('Fehler beim Laden der AddModule');
     }
 };
 
@@ -22,7 +22,7 @@ export const fetchBookedModules = async (sessionId) => {
         });
         return response.data;
     } catch (error) {
-        throw new Error('Fehler beim Laden der gebuchten Module');
+        throw new Error('Fehler beim Laden der gebuchten AddModule');
     }
 };
 
@@ -33,7 +33,7 @@ export const fetchMerkliste = async (sessionId) => {
                 'sessionId': sessionId
             }
         });
-        return response.data; // Nimmt an, dass die Antwort die Liste der Module in der Merkliste ist
+        return response.data; // Nimmt an, dass die Antwort die Liste der AddModule in der Merkliste ist
     } catch (error) {
         throw new Error('Fehler beim Laden der Merkliste');
     }

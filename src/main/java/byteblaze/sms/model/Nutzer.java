@@ -21,7 +21,7 @@ public class Nutzer {
     @JoinTable(name = "Merkliste",
             joinColumns = @JoinColumn(name = "nutzer_id"),
             inverseJoinColumns = @JoinColumn(name = "module_id"))
-    //SET da keine doppelten Werte aka. Module hinzugefügt werden können
+    //SET da keine doppelten Werte aka. AddModule hinzugefügt werden können
     private Set<Module> merkliste = new HashSet<>();
 
     @ManyToMany
@@ -29,7 +29,7 @@ public class Nutzer {
             name = "gebuchte_module",
             joinColumns = @JoinColumn(name = "nutzer_id"),
             inverseJoinColumns = @JoinColumn(name = "module_id"))
-    //SET da keine doppelten Werte aka. Module hinzugefügt werden können
+    //SET da keine doppelten Werte aka. AddModule hinzugefügt werden können
     private Set<Module> gebuchteModule = new HashSet<>();
 
     @ElementCollection

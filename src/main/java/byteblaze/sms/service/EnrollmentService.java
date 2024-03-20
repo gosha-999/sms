@@ -82,7 +82,7 @@ public class EnrollmentService {
         return nutzer.getGebuchteModule();
     }
 
-    // Service-Methode, um mehrere Noten für Module einzutragen
+    // Service-Methode, um mehrere Noten für AddModule einzutragen
     public void addNotesForModules(Long nutzerId, Map<Long, Double> moduleNotes) {
         Nutzer nutzer = nutzerRepository.findById(nutzerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
