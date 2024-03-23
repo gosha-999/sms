@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,8 +57,6 @@ public class EnrollmentService {
             nutzer.getMerkliste().remove(module); // Entfernen Sie das Modul aus der Merkliste des Nutzers
         }
 
-        // Fügen Sie die Task-IDs des Moduls zur Liste der Task-IDs des Nutzers hinzu
-        nutzer.getTaskIds().addAll(module.getTaskIds());
 
         nutzerRepository.save(nutzer);
     }
@@ -73,6 +70,7 @@ public class EnrollmentService {
 
         nutzer.getGebuchteModule().remove(module);
         nutzerRepository.save(nutzer);
+
     }
 
     public Set<Module> getEnrolledModules(Long nutzerId) {
@@ -134,7 +132,7 @@ public class EnrollmentService {
         Map<Long, Double> noten = nutzer.getNoten();
 
         if (noten.isEmpty()) {
-            return 0.0; // Wenn der Nutzer keine Noten hat, beträgt der Durchschnitt 0
+            return 0.0;
         }
 
         double sumWeightedGrade = 0.0;
@@ -154,9 +152,5 @@ public class EnrollmentService {
 
         return sumWeightedGrade / sumECTS;
     }
-
-
-
-
 }
 

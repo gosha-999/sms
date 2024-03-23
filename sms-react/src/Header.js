@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { fetchNutzerInfo, logout } from './authService';
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHome } from '@fortawesome/free-solid-svg-icons'; // Importieren des Haus-Symbols
 
 function Header() {
     const [sessionId, setSessionId] = useState(localStorage.getItem('sessionId') || null);
@@ -10,7 +12,7 @@ function Header() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetchNutzerName(); // Laden Sie den Nutzernamen beim ersten Rendern
+        fetchNutzerName();
     }, []);
 
     const fetchNutzerName = async () => {
@@ -44,11 +46,8 @@ function Header() {
             try {
                 await logout(sessionId);
                 localStorage.removeItem('sessionId');
-                // Aktualisieren den Nutzernamen im Header
                 setNutzername('');
-                // Navigieren Sie zur Authentifizierungsseite
                 navigate('/auth');
-
             } catch (error) {
                 console.error('Fehler beim Logout:', error);
             }
@@ -59,32 +58,31 @@ function Header() {
         setDropdownOpen(!dropdownOpen);
     };
 
-    // Dropdown-Positionsstil basierend auf der Fensterbreite
-    const dropdownStyle = {
-        right: 0,
-        left: 'auto',
-    };
-
-    if (dropdownRef.current) {
-        const dropdownRect = dropdownRef.current.getBoundingClientRect();
-        const spaceRight = window.innerWidth - dropdownRect.right;
-        if (spaceRight < 0) {
-            dropdownStyle.right = -spaceRight + 'px';
-            dropdownStyle.left = 'auto';
-        }
-    }
-
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-light">
             <div className="container-fluid">
-                <a className="navbar-brand" href="/">MeineApp</a>
-                <div className="collapse navbar-collapse justify-content-end" id="navbarNavDropdown">
+                <a className="navbar-brand" href="#" onClick={() => navigate('/dashboard')}>
+                    <FontAwesomeIcon icon={faHome} /> {/* FontAwesome Haus-Symbol */}
+                </a>
+                <div className="collapse navbar-collapse justify-content-between" id="navbarNavDropdown">
+                    <ul className="navbar-nav">
+                        <li className="nav-item">
+                            <a className="nav-link" href="#" onClick={() => navigate('/notenverwaltung')}>Notenverwaltung</a>
+                        </li>
+                        <li className="nav-item">
+                            <a className="nav-link" href="#" onClick={() => navigate('/klausurverwaltung')}>Klausurverwaltung</a>
+                        </li>
+                        {/* Hinzugefügte Navigation zum Kanban Board */}
+                        <li className="nav-item">
+                            <a className="nav-link" href="#" onClick={() => navigate('/kanban')}>Kanban Board</a>
+                        </li>
+                    </ul>
                     <ul className="navbar-nav">
                         <li className="nav-item dropdown" ref={dropdownRef}>
                             <a className="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" onClick={toggleDropdown} aria-haspopup="true" aria-expanded={dropdownOpen ? "true" : "false"}>
                                 {nutzername ? nutzername : 'Nutzer'}
                             </a>
-                            <div className={"dropdown-menu" + (dropdownOpen ? " show" : "")} aria-labelledby="navbarDropdownMenuLink" style={dropdownStyle}>
+                            <div className={"dropdown-menu" + (dropdownOpen ? " show" : "")} aria-labelledby="navbarDropdownMenuLink">
                                 <a className="dropdown-item" href="/kontodaten">Kontodaten ändern</a>
                                 <a className="dropdown-item" href="#" onClick={handleLogout}>Logout</a>
                             </div>

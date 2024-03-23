@@ -119,6 +119,14 @@ public class TaskService {
                 .collect(Collectors.toList());
     }
 
+    public Task updateTaskStatus(Long taskId, Task.TaskStatus newStatus) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task nicht gefunden"));
+        task.setStatus(newStatus);
+        return taskRepository.save(task);
+    }
+
+
 
 
 }

@@ -176,6 +176,7 @@ function Dashboard() {
                         <FontAwesomeIcon icon={faPlus} size="2x"/>
                     </button>
                 </div>
+                {filteredModules().length === 0 && <p>Keine Module verfügbar.</p>}
                 <ul className="list-group">
                     {filteredModules().map(module => (
                         <li key={module.moduleId}
@@ -215,6 +216,7 @@ function Dashboard() {
             </div>
         </div>
     );
+
 
 }
 

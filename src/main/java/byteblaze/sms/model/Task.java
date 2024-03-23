@@ -16,7 +16,7 @@ public class Task {
     private String title;
     private String description;
     private LocalDate deadline;
-    private Integer priority;
+    private Priority priority;
     private LocalDate fulfillmentDate;
     private LocalDate creationDate;
 
@@ -29,6 +29,10 @@ public class Task {
 
     public enum TaskStatus {
         TODO, IN_PROGRESS, DONE
+    }
+
+    public enum Priority {
+        NIEDRIG, MITTEL, HOCH
     }
 }
 

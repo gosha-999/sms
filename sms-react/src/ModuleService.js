@@ -53,5 +53,95 @@ export const fetchKlausurTermineByModuleId = async (moduleId) => {
     }
 };
 
+// Ergänzung in ModuleService.js
+export const bucheKlausurTermin = async (klausurTerminId, sessionId) => {
+    try {
+        const response = await axios.post(`${BASE_URL}/klausur/${klausurTerminId}/buchen`, {}, {
+            headers: {
+                'sessionId': sessionId
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Fehler beim Buchen des Klausurtermins:', error);
+        throw error;
+    }
+};
 
-export default {addModule, fetchModuleById, fetchKlausurTermineByModuleId};
+// Neue Funktion zum Abrufen der gebuchten Klausurtermine eines Nutzers
+export const fetchBookedKlausurTermine = async (sessionId) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/klausur/nutzerTermine`, {
+            headers: {
+                'sessionId': sessionId // Stelle sicher, dass die Session-ID korrekt übermittelt wird
+            }
+        });
+        return response.data; // Die gebuchten Klausurtermine
+    } catch (error) {
+        console.error('Fehler beim Laden der gebuchten Klausurtermine:', error);
+        throw error;
+    }
+};
+
+// Funktion zum Hinzufügen von Noten für Module
+export const addNotesForModules = async (sessionId, moduleNotes) => {
+    try {
+        const response = await axios.post(`${BASE_URL}/enrollment/setnoten`, moduleNotes, {
+            headers: {
+                'Content-Type': 'application/json',
+                'sessionId': sessionId,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Fehler beim Speichern der Noten:', error);
+        throw error;
+    }
+};
+
+// Funktion zum Abrufen des gewichteten Notendurchschnitts
+export const getWeightedAverageGrade = async (sessionId) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/enrollment/durchschnitt`, {
+            headers: {
+                'sessionId': sessionId,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Fehler beim Abrufen des Notendurchschnitts:', error);
+        throw error;
+    }
+};
+
+export const getAllNotes = async (sessionId) => {
+    try {
+        const response = await axios.get(`${BASE_URL}/enrollment/noten`, {
+            headers: {
+                'sessionId': sessionId,
+            },
+        });
+        return response.data; // Gibt ein Objekt zurück, wobei der Schlüssel die moduleId und der Wert die Note ist
+    } catch (error) {
+        console.error('Fehler beim Abrufen der Noten:', error);
+        throw error;
+    }
+};
+
+
+
+
+
+
+// Stellen Sie sicher, dass Sie die neuen Funktionen auch im default export einfügen, falls Sie dies nutzen
+export default {
+    addModule,
+    fetchModuleById,
+    addKlausurTermin,
+    fetchKlausurTermineByModuleId,
+    bucheKlausurTermin,
+    fetchBookedKlausurTermine,
+    addNotesForModules,
+    getWeightedAverageGrade,
+    getAllNotes
+};

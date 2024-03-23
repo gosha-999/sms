@@ -92,7 +92,26 @@ export const removeFromMerkliste = async (sessionId, moduleId) => {
     }
 };
 
+// Aktualisiert Nutzerdaten
+export const updateUser = async (sessionId, userData) => {
+    try {
+        const response = await axios.patch(`${BASE_URL}/nutzer/update`, userData, {
+            headers: {
+                'Content-Type': 'application/json',
+                'sessionId': sessionId,
+            }
+        });
+        return response.data; // Der aktualisierte Nutzer
+    } catch (error) {
+        console.error('Fehler beim Aktualisieren der Nutzerdaten:', error);
+        throw error;
+    }
+};
 
 
-export default { fetchModules, fetchBookedModules,fetchMerkliste, enrollInModule, removeBookedModule, addToMerkliste, removeFromMerkliste };
+
+
+export default { fetchModules, fetchBookedModules,
+    fetchMerkliste, enrollInModule, removeBookedModule,
+    addToMerkliste, removeFromMerkliste, updateUser};
 

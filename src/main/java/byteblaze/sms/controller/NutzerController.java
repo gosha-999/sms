@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/nutzer")
 public class NutzerController {
@@ -44,7 +45,7 @@ public class NutzerController {
         return ResponseEntity.status(HttpStatus.CREATED).body(newNutzer);
     }
 
-    @PutMapping("/update")
+    @PatchMapping("/update")
     public ResponseEntity<?> updateUser(@RequestHeader("sessionId") String sessionId, @RequestBody Nutzer updatedNutzer) {
         if (!loginService.isValidSession(sessionId)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized access");

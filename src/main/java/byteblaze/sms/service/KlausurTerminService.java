@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -78,6 +79,13 @@ public class KlausurTerminService {
         }
         klausurTermin.setVerbleibendePlätze(remainingSeats);
         klausurTerminRepository.save(klausurTermin);
+    }
+
+    public List<KlausurTermin> getNutzerTermine(Long nutzerId) {
+        // Suche alle Klausurtermine, die von diesem Nutzer gebucht wurden
+        return klausurTerminRepository.findAll().stream()
+                .filter(klausurTermin -> klausurTermin.getGebuchtVonNutzerIds().contains(nutzerId))
+                .collect(Collectors.toList());
     }
 
 }

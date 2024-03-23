@@ -46,4 +46,23 @@ public class KlausurTerminController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+
+    @GetMapping("/nutzerTermine")
+    public ResponseEntity<?> getNutzerTermine(@RequestHeader("sessionId") String sessionId) {
+        if (!loginService.isValidSession(sessionId)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Ungültige Sitzung");
+        }
+        Long nutzerId = loginService.getUserIdFromSession(sessionId);
+        if (nutzerId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Nutzer nicht identifiziert");
+        }
+        try {
+            List<KlausurTermin> nutzerTermine = klausurTerminService.getNutzerTermine(nutzerId);
+            return ResponseEntity.ok(nutzerTermine);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
 }

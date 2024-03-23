@@ -37,7 +37,7 @@ public class ModuleController {
     }
 
     //updated ein bestehendes Modul per moduleId
-    @PutMapping("/{moduleId}/update")
+    @PatchMapping("/{moduleId}/update")
     public ResponseEntity<Module> updateModule(@PathVariable Long moduleId, @RequestBody Module updatedModule) {
         Module module = moduleService.updateModule(moduleId, updatedModule);
         return ResponseEntity.ok(module);

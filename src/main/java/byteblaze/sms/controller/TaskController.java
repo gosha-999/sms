@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/tasks")
@@ -29,7 +30,7 @@ public class TaskController {
         return ResponseEntity.ok(addedTask);
     }
 
-    // This endpoint was marked as unnecessary
+
     // Get task IDs by user ID
     @GetMapping("/get")
     public ResponseEntity<?> getTaskIdsByNutzerId(@RequestHeader("sessionId") String sessionId) {
@@ -83,4 +84,22 @@ public class TaskController {
         List<Task> tasks = taskService.getTasksByStatus(status);
         return ResponseEntity.ok(tasks);
     }
+
+    //Status updaten
+    @PatchMapping("/{taskId}/status")
+    public ResponseEntity<?> updateTaskStatus(@PathVariable Long taskId, @RequestBody String status, @RequestHeader("sessionId") String sessionId) {
+        if (!loginService.isValidSession(sessionId)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Ungültige Sitzung");
+        }
+        // Konvertiere den String status in ein Enum
+        Task.TaskStatus newStatus;
+        try {
+            newStatus = Task.TaskStatus.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ungültiger Status");
+        }
+        Task updatedTask = taskService.updateTaskStatus(taskId, newStatus);
+        return ResponseEntity.ok(updatedTask);
+    }
+
 }
