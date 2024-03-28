@@ -6,7 +6,8 @@ import Header from './Header';
 import DashboardService from './DashboardService';
 import ModuleService from "./ModuleService";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faBookmark, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faBookmark, faCheck, faTrash } from '@fortawesome/free-solid-svg-icons';
+
 
 function Dashboard() {
     const [filter, setFilter] = useState('all');
@@ -87,6 +88,8 @@ function Dashboard() {
 
 
 
+
+
     const filteredModules = () => {
         switch (filter) {
             case 'booked':
@@ -149,6 +152,27 @@ function Dashboard() {
         }
     };
 
+    const handleDeleteModule = async (moduleId) => {
+        const sessionId = localStorage.getItem('sessionId');
+        if (!sessionId) {
+            alert('Sie sind nicht angemeldet.');
+            return;
+        }
+
+        try {
+            const confirmationMessage = await DashboardService.deleteModule(sessionId, moduleId);
+            alert(confirmationMessage); // Zeigt eine Bestätigungsnachricht an
+            // Nach erfolgreichem Löschen, aktualisiere die Module
+            const updatedModules = await DashboardService.fetchModules();
+            setModules(updatedModules);
+            // Optional: Aktualisiere die gebuchten Module und die Merkliste, falls nötig
+        } catch (error) {
+            console.error('Fehler beim Löschen des Moduls:', error);
+            alert('Fehler beim Löschen des Moduls.');
+        }
+    };
+
+
     // Funktion zur Navigation zur Detailansicht eines Moduls
     const navigateToModuleDetail = (moduleId) => {
         navigate(`/moduledetail/${moduleId}`);
@@ -181,9 +205,8 @@ function Dashboard() {
                     {filteredModules().map(module => (
                         <li key={module.moduleId}
                             className="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <div style={{fontWeight: 'bold', cursor: 'pointer'}}
-                                     onClick={() => navigateToModuleDetail(module.moduleId)}>
+                            <div onClick={() => navigateToModuleDetail(module.moduleId)} style={{cursor: 'pointer', flexGrow: 1}}>
+                                <div style={{fontWeight: 'bold'}}>
                                     {module.name}
                                 </div>
                                 <div>Ects: {module.ects}</div>
@@ -199,16 +222,17 @@ function Dashboard() {
                                     )
                                 }
                                 {filter === 'booked' ? (
-                                    <button className="btn btn-danger" onClick={() => handleRemove(module.moduleId)}>Entfernen</button>
+                                    <button className="btn btn-danger me-2" onClick={() => handleRemove(module.moduleId)}>Entfernen</button>
                                 ) : (
-                                    <React.Fragment>
+                                    <>
                                         {module.isBooked ? (
-                                            <button className="btn btn-danger" onClick={() => handleRemove(module.moduleId)}>Entfernen</button>
+                                            <button className="btn btn-danger me-2" onClick={() => handleRemove(module.moduleId)}>Entfernen</button>
                                         ) : (
-                                            <button className="btn btn-primary" onClick={() => handleEnroll(module.moduleId)}>Buchen</button>
+                                            <button className="btn btn-primary me-2" onClick={() => handleEnroll(module.moduleId)}>Buchen</button>
                                         )}
-                                    </React.Fragment>
+                                    </>
                                 )}
+                                <FontAwesomeIcon icon={faTrash} className="text-danger ms-2" style={{cursor: 'pointer'}} onClick={() => handleDeleteModule(module.moduleId)} />
                             </div>
                         </li>
                     ))}
@@ -216,6 +240,7 @@ function Dashboard() {
             </div>
         </div>
     );
+
 
 
 }

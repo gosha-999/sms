@@ -58,9 +58,17 @@ public class KlausurTerminService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Es sind keine Plätze mehr verfügbar");
         }
 
-// Überprüfen, ob der Nutzer bereits für diesen Klausurtermin gebucht hat
-        if (klausurTermin.getGebuchtVonNutzerIds().contains(nutzerId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Der Nutzer hat bereits einen Klausurtermin für dieses Modul gebucht");
+        // Hole das Modul-ID des Klausurtermins
+        Long moduleId = klausurTermin.getModuleId();
+
+        // Überprüfe, ob der Nutzer bereits für einen Klausurtermin dieses Moduls gebucht hat
+        // Dies nutzt die Methode findByModuleId(Long moduleId) im KlausurTerminRepository
+        List<KlausurTermin> gebuchteKlausurTermineFuerModul = klausurTerminRepository.findByModuleId(moduleId);
+        boolean hatBereitsGebucht = gebuchteKlausurTermineFuerModul.stream()
+                .anyMatch(gebuchterTermin -> nutzer.getGebuchteKlausurTerminIds().contains(gebuchterTermin.getKlausurTerminId()));
+
+        if (hatBereitsGebucht) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Der Nutzer hat bereits für einen Klausurtermin dieses Moduls gebucht");
         }
 
         // Füge den Nutzer zum Klausurtermin hinzu

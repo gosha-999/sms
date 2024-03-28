@@ -21,6 +21,9 @@ function Notenverwaltung() {
                 grade: notes[module.moduleId] || ''
             }));
             setModuleGrades(initialGrades);
+
+            // Nachdem die initialen Daten geladen wurden, berechnen Sie die Durchschnittsnote
+            await calculateAverage();
         };
 
         fetchData();
@@ -44,6 +47,9 @@ function Notenverwaltung() {
         try {
             await ModuleService.addNotesForModules(sessionId, formattedGrades);
             alert('Noten gespeichert!');
+
+            // Nachdem die Noten gespeichert wurden, berechnen Sie erneut die Durchschnittsnote
+            await calculateAverage();
         } catch (error) {
             console.error('Fehler beim Speichern der Noten:', error);
             alert('Fehler beim Speichern der Noten.');
@@ -61,7 +67,8 @@ function Notenverwaltung() {
     };
 
     return (
-        <div><Header />
+        <div>
+            <Header />
             <div className="container mt-4">
                 <div className="text-white bg-primary mb-3 p-3 rounded" style={{backgroundColor: "blue"}}>
                     <h1>Notenübersicht</h1>
@@ -91,11 +98,14 @@ function Notenverwaltung() {
                         </div>
                     ))
                 )}
-                <button type="button" className="btn btn-primary" onClick={saveGrades}>Noten speichern</button>
-                {averageGrade > 0 && <h2 className="mt-3">Durchschnittsnote: {averageGrade}</h2>}
+                <div className="mt-3">
+                    <button type="button" className="btn btn-primary mr-2" onClick={saveGrades}>Noten speichern</button>
+                    <div>Durchschnittsnote: {averageGrade > 0 ? averageGrade.toFixed(2) : "N/A"}</div>
+                </div>
             </div>
         </div>
     );
+
 }
 
 export default Notenverwaltung;

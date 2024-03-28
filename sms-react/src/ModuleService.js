@@ -8,7 +8,6 @@ export const addModule = async (moduleData) => {
         const response = await axios.post(`${BASE_URL}/modules/add`, moduleData, {
             headers: {
                 'Content-Type': 'application/json',
-                // Füge weitere benötigte Headers hinzu, z.B. Authorization für Authentifizierung
             }
         });
         return response.data; // Das hinzugefügte Modul
@@ -63,7 +62,7 @@ export const bucheKlausurTermin = async (klausurTerminId, sessionId) => {
         });
         return response.data;
     } catch (error) {
-        console.error('Fehler beim Buchen des Klausurtermins:', error);
+        console.error('Fehler beim Buchen des Klausurtermins:', error.response);
         throw error;
     }
 };

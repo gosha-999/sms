@@ -42,7 +42,7 @@ const Kontodaten = () => {
                         placeholder="Neue E-Mail-Adresse eingeben"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        required
+
                     />
                 </Form.Group>
 
@@ -53,7 +53,7 @@ const Kontodaten = () => {
                         placeholder="Neues Passwort"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        required
+
                     />
                 </Form.Group>
 
@@ -64,7 +64,7 @@ const Kontodaten = () => {
                         placeholder="Passwort bestätigen"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
+
                     />
                 </Form.Group>
 

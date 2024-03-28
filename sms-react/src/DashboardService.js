@@ -108,10 +108,26 @@ export const updateUser = async (sessionId, userData) => {
     }
 };
 
+// Deletes a module by its ID and returns a confirmation message
+export const deleteModule = async (sessionId, moduleId) => {
+    try {
+        await axios.delete(`${BASE_URL}/modules/${moduleId}/delete`, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        return `Modul mit ID ${moduleId} wurde erfolgreich gelöscht.`; // Bestätigungsnachricht
+    } catch (error) {
+        console.error('Fehler beim Löschen des Moduls:', error);
+        throw error; // Wirft den Fehler weiter, falls etwas schief geht
+    }
+};
+
+
 
 
 
 export default { fetchModules, fetchBookedModules,
     fetchMerkliste, enrollInModule, removeBookedModule,
-    addToMerkliste, removeFromMerkliste, updateUser};
+    addToMerkliste, removeFromMerkliste, updateUser, deleteModule};
 
