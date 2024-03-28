@@ -4,19 +4,16 @@ const BASE_URL = 'http://localhost:8080';
 export const loginUser = async (nutzername, password) => {
     try {
         const response = await axios.post(`${BASE_URL}/login`, { nutzername, password });
-        const data = response.data;
-        if (data.sessionId) {
+        if (response.status === 200) {
+            const data = response.data;
             localStorage.setItem('sessionId', data.sessionId);
-            alert('Login erfolgreich! Session ID gespeichert.');
-            return true;
+            return true; // Rückgabe true bei erfolgreicher Anmeldung
         } else {
-            alert('Login fehlgeschlagen.');
-            return false;
+            return false; // Rückgabe false bei fehlgeschlagener Anmeldung
         }
     } catch (error) {
         console.error('Fehler:', error);
-        alert('Ein Fehler ist aufgetreten.');
-        return false;
+        return false; // Rückgabe false bei Fehler
     }
 };
 

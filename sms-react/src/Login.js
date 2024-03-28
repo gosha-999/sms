@@ -5,12 +5,24 @@ import { useNavigate } from 'react-router-dom';
 function Login() {
     const [nutzername, setNutzername] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        loginUser(nutzername, password);
-        navigate('/dashboard');
+        try {
+            const loginSuccess = await loginUser(nutzername, password);
+            if (loginSuccess) {
+                // Benutzer erfolgreich angemeldet, navigiere zum Dashboard
+                navigate('/dashboard');
+            } else {
+                // Anmeldung fehlgeschlagen, zeige Fehlermeldung an
+                setError('Fehler beim Einloggen. Bitte überprüfen Sie Ihre Anmeldeinformationen.');
+            }
+        } catch (error) {
+            // Fehler beim Einloggen, zeige Fehlermeldung an
+            setError('Fehler beim Einloggen. Bitte überprüfen Sie Ihre Anmeldeinformationen.');
+        }
     };
 
     return (
@@ -39,6 +51,7 @@ function Login() {
                             onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
+                    {error && <div className="alert alert-danger" role="alert">{error}</div>}
                     <button type="submit" className="btn btn-primary">Einloggen</button>
                 </form>
             </div>
