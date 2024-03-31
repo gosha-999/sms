@@ -58,6 +58,12 @@ function Header() {
         setDropdownOpen(!dropdownOpen);
     };
 
+    const dropdownStyle = {
+        right: '0px',
+        left: 'auto',
+        position: 'absolute', // Stellen Sie sicher, dass das Dropdown-Menü richtig positioniert wird
+    };
+
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-light">
             <div className="container-fluid">
@@ -79,10 +85,12 @@ function Header() {
                     </ul>
                     <ul className="navbar-nav">
                         <li className="nav-item dropdown" ref={dropdownRef}>
-                            <a className="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" onClick={toggleDropdown} aria-haspopup="true" aria-expanded={dropdownOpen ? "true" : "false"}>
+                            <a className="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
+                               onClick={toggleDropdown} aria-haspopup="true"
+                               aria-expanded={dropdownOpen ? "true" : "false"}>
                                 {nutzername ? nutzername : 'Nutzer'}
                             </a>
-                            <div className={"dropdown-menu" + (dropdownOpen ? " show" : "")} aria-labelledby="navbarDropdownMenuLink">
+                            <div className={"dropdown-menu dropdown-menu-right" + (dropdownOpen ? " show" : "")} aria-labelledby="navbarDropdownMenuLink" style={dropdownStyle}>
                                 <a className="dropdown-item" href="/kontodaten">Kontodaten ändern</a>
                                 <a className="dropdown-item" href="#" onClick={handleLogout}>Logout</a>
                             </div>

@@ -1,16 +1,23 @@
 import React, { useState } from 'react';
-import { loginUser } from './authService';
-import {registerUser} from "./authService";
+import { loginUser, registerUser } from './authService'; // Angenommen, beide Funktionen werden aus dem gleichen Modul importiert
 import { useNavigate } from 'react-router-dom';
 
 function Register({ onLoginSuccess }) {
     const [nutzername, setNutzername] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState(''); // Zustand für das Bestätigungspasswort
     const [email, setEmail] = useState('');
     const navigate = useNavigate();
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+
+        // Überprüfung, ob Passwörter übereinstimmen
+        if (password !== confirmPassword) {
+            alert('Die Passwörter stimmen nicht überein.');
+            return; // Verhindert die Fortsetzung der Registrierung
+        }
+
         try {
             const response = await registerUser(nutzername, password, email);
             console.log('Registrierung erfolgreich:', response);
@@ -45,6 +52,17 @@ function Register({ onLoginSuccess }) {
                             id="registerPassword"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="confirmPassword" className="form-label">Passwort bestätigen</label>
+                        <input
+                            type="password"
+                            className="form-control"
+                            id="confirmPassword"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
                             required
                         />
                     </div>
