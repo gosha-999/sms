@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
-import { updateUser } from './DashboardService'; // Stellen Sie sicher, dass der Pfad zu Ihrer DashboardService.js korrekt ist
+import { updateUser } from './DashboardService';
+import Header from "./Header"; // Stellen Sie sicher, dass der Pfad zu Ihrer DashboardService.js korrekt ist
 
 const Kontodaten = () => {
     const [email, setEmail] = useState('');
@@ -31,6 +32,7 @@ const Kontodaten = () => {
     };
 
     return (
+        <div><Header />
         <div className="kontodaten-form">
             {error && <Alert variant="danger">{error}</Alert>}
             {success && <Alert variant="success">{success}</Alert>}
@@ -72,6 +74,7 @@ const Kontodaten = () => {
                     Aktualisieren
                 </Button>
             </Form>
+        </div>
         </div>
     );
 };

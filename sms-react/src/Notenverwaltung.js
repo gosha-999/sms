@@ -9,25 +9,28 @@ function Notenverwaltung() {
     const [averageGrade, setAverageGrade] = useState(0);
     const [allNotes, setAllNotes] = useState({});
     const [filterModus, setFilterModus] = useState('alle');
+    const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+
+    const fetchData = async () => {
+        const sessionId = localStorage.getItem('sessionId');
+        const modules = await DashboardService.fetchBookedModules(sessionId);
+        const notes = await ModuleService.getAllNotes(sessionId);
+        setBookedModules(modules);
+        setAllNotes(notes);
+        const initialGrades = modules.map(module => ({
+            moduleId: module.moduleId,
+            grade: notes[module.moduleId] || ''
+        }));
+        setModuleGrades(initialGrades);
+
+        // Nachdem die initialen Daten geladen wurden, berechnen Sie die Durchschnittsnote
+        await calculateAverage();
+    };
 
     useEffect(() => {
-        const fetchData = async () => {
-            const sessionId = localStorage.getItem('sessionId');
-            const modules = await DashboardService.fetchBookedModules(sessionId);
-            const notes = await ModuleService.getAllNotes(sessionId);
-            setBookedModules(modules);
-            setAllNotes(notes);
-            const initialGrades = modules.map(module => ({
-                moduleId: module.moduleId,
-                grade: notes[module.moduleId] || ''
-            }));
-            setModuleGrades(initialGrades);
-
-            // Nachdem die initialen Daten geladen wurden, berechnen Sie die Durchschnittsnote
-            await calculateAverage();
-        };
-
         fetchData();
+        calculateAverage();
     }, []);
 
     const handleGradeChange = (index, grade) => {
@@ -47,15 +50,20 @@ function Notenverwaltung() {
 
         try {
             await ModuleService.addNotesForModules(sessionId, formattedGrades);
-            alert('Noten gespeichert!');
+            setSuccessMessage('Noten erfolgreich gespeichert!');
+            setTimeout(() => setSuccessMessage(''), 3000);
 
-            // Nachdem die Noten gespeichert wurden, berechnen Sie erneut die Durchschnittsnote
+            // Neu laden der Daten und erneutes Berechnen der Durchschnittsnote
+            await fetchData();
             await calculateAverage();
         } catch (error) {
             console.error('Fehler beim Speichern der Noten:', error);
-            alert('Fehler beim Speichern der Noten.');
+            setErrorMessage("Fehler beim Speichern der Note");
+            setTimeout(() => setErrorMessage(''), 3000);
         }
     };
+
+
 
     const calculateAverage = async () => {
         const sessionId = localStorage.getItem('sessionId');
@@ -83,10 +91,29 @@ function Notenverwaltung() {
                 <div className="text-white bg-primary mb-3 p-3 rounded" style={{backgroundColor: "blue"}}>
                     <h1>Notenübersicht</h1>
                     <div className="filter-controls mb-3">
-                        <button className={`btn btn-info mr-2 ${filterModus === 'alle' && 'active'}`} onClick={() => setFilterModus('alle')}>Alle Module</button>
-                        <button className={`btn btn-info mr-2 ${filterModus === 'benotet' && 'active'}`} onClick={() => setFilterModus('benotet')}>Benotete Module</button>
-                        <button className={`btn btn-info ${filterModus === 'nicht benotet' && 'active'}`} onClick={() => setFilterModus('nicht benotet')}>Nicht benotete Module</button>
+                        <button className={`btn btn-info mr-2 ${filterModus === 'alle' && 'active'}`}
+                                onClick={() => setFilterModus('alle')}>Alle Module
+                        </button>
+                        <button className={`btn btn-info mr-2 ${filterModus === 'benotet' && 'active'}`}
+                                onClick={() => setFilterModus('benotet')}>Benotete Module
+                        </button>
+                        <button className={`btn btn-info ${filterModus === 'nicht benotet' && 'active'}`}
+                                onClick={() => setFilterModus('nicht benotet')}>Nicht benotete Module
+                        </button>
                     </div>
+
+                </div>
+                <div className="container mt-4">
+                    {successMessage && (
+                        <div className="alert alert-success" role="alert">
+                            {successMessage}
+                        </div>
+                    )}
+                    {errorMessage && (
+                        <div className="alert alert-danger" role="alert">
+                            {errorMessage}
+                        </div>
+                    )}
                 </div>
                 {filteredModules.length === 0 ? (
                     <p>Keine gebuchten Module verfügbar.</p>
@@ -113,7 +140,9 @@ function Notenverwaltung() {
                         </div>
                     ))
                 )}
+
                 <div className="mt-3">
+
                     <button type="button" className="btn btn-primary mr-2" onClick={saveGrades}>Noten speichern</button>
                     <div>Durchschnittsnote: {averageGrade > 0 ? averageGrade.toFixed(2) : "N/A"}</div>
                 </div>

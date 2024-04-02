@@ -15,6 +15,8 @@ function Dashboard() {
     const [bookedModules, setBookedModules] = useState([]);
     const [merkliste, setMerkliste] = useState([]);
     const navigate = useNavigate();
+    const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
         const loadModules = async () => {
@@ -60,12 +62,15 @@ function Dashboard() {
         if (sessionId) {
             try {
                 const message = await DashboardService.enrollInModule(sessionId, moduleId);
-                alert(message);
+                setSuccessMessage("Module erfolgreich gebucht")
+                setTimeout(() => setSuccessMessage(''), 3000);
                 const updatedBookedModules = await DashboardService.fetchBookedModules(sessionId);
                 setBookedModules(updatedBookedModules);
+
             } catch (error) {
                 console.error('Fehler beim Buchen des Moduls:', error);
-                alert(error.message);
+                setErrorMessage("Fehler beim Buchen des Moduls")
+                setTimeout(() => setErrorMessage(''), 3000);
             }
         }
     };
@@ -79,9 +84,12 @@ function Dashboard() {
                 await DashboardService.removeBookedModule(sessionId, moduleId);
                 const updatedBookedModules = await DashboardService.fetchBookedModules(sessionId);
                 setBookedModules(updatedBookedModules); // Korrekte Aktualisierung der gebuchten AddModule
+                setSuccessMessage("Module wurde erfolgreich entfernt")
+                setTimeout(() => setSuccessMessage(''), 3000);
             } catch (error) {
                 console.error('Fehler beim Entfernen des Moduls:', error);
-                alert(error.message);
+                setErrorMessage("Fehler beim Enfernen des Moduls")
+                setTimeout(() => setErrorMessage(''), 3000);
             }
         }
     };
@@ -130,9 +138,12 @@ function Dashboard() {
                 await DashboardService.addToMerkliste(sessionId, moduleId);
                 const updatedMerkliste = await DashboardService.fetchMerkliste(sessionId);
                 setMerkliste(updatedMerkliste);
+                setSuccessMessage("Module wurde zur Merkliste hinzugefügt")
+                setTimeout(() => setSuccessMessage(''), 3000);
             } catch (error) {
                 console.error('Fehler beim Hinzufügen zur Merkliste:', error);
-                alert(error.message);
+                setErrorMessage("Fehler beim Hinzufügen zur Merkliste")
+                setTimeout(() => setErrorMessage(''), 3000);
             }
         }
     };
@@ -145,9 +156,12 @@ function Dashboard() {
                 await DashboardService.removeFromMerkliste(sessionId, moduleId);
                 const updatedMerkliste = await DashboardService.fetchMerkliste(sessionId);
                 setMerkliste(updatedMerkliste);
+                setSuccessMessage("Module von Merkliste entfernt")
+                setTimeout(() => setSuccessMessage(''), 3000);
             } catch (error) {
                 console.error('Fehler beim Entfernen aus der Merkliste:', error);
-                alert(error.message);
+                setSuccessMessage("Fehler beim Entfernen aus der Merkliste")
+                setTimeout(() => setSuccessMessage(''), 3000);
             }
         }
     };
@@ -161,14 +175,14 @@ function Dashboard() {
 
         try {
             const confirmationMessage = await DashboardService.deleteModule(sessionId, moduleId);
-            alert(confirmationMessage); // Zeigt eine Bestätigungsnachricht an
-            // Nach erfolgreichem Löschen, aktualisiere die Module
             const updatedModules = await DashboardService.fetchModules();
             setModules(updatedModules);
-            // Optional: Aktualisiere die gebuchten Module und die Merkliste, falls nötig
+            setSuccessMessage("Module erfolgreich gelöscht")
+            setTimeout(() => setSuccessMessage(''), 3000);
         } catch (error) {
             console.error('Fehler beim Löschen des Moduls:', error);
-            alert('Fehler beim Löschen des Moduls.');
+            setErrorMessage("Module erfolgreich gelöscht")
+            setTimeout(() => setErrorMessage(''), 3000);
         }
     };
 
@@ -196,16 +210,32 @@ function Dashboard() {
                                 onClick={() => setFilter('wishlist')}>Merkliste
                         </button>
                     </div>
-                    <button className="icon-button" onClick={handleAddModule} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+
+                    <button className="icon-button" onClick={handleAddModule}
+                            style={{background: 'none', border: 'none', cursor: 'pointer'}}>
                         <FontAwesomeIcon icon={faPlus} size="2x"/>
                     </button>
+
+                </div>
+                <div className="container mt-4">
+                    {successMessage && (
+                        <div className="alert alert-success" role="alert">
+                            {successMessage}
+                        </div>
+                    )}
+                    {errorMessage && (
+                        <div className="alert alert-danger" role="alert">
+                            {errorMessage}
+                        </div>
+                    )}
                 </div>
                 {filteredModules().length === 0 && <p>Keine Module verfügbar.</p>}
                 <ul className="list-group">
                     {filteredModules().map(module => (
                         <li key={module.moduleId}
                             className="list-group-item d-flex justify-content-between align-items-center">
-                            <div onClick={() => navigateToModuleDetail(module.moduleId)} style={{cursor: 'pointer', flexGrow: 1}}>
+                            <div onClick={() => navigateToModuleDetail(module.moduleId)}
+                                 style={{cursor: 'pointer', flexGrow: 1}}>
                                 <div style={{fontWeight: 'bold'}}>
                                     {module.name}
                                 </div>
@@ -216,23 +246,31 @@ function Dashboard() {
                             <div className="d-flex align-items-center">
                                 {
                                     merkliste.some(mlItem => mlItem.moduleId === module.moduleId) ? (
-                                        <FontAwesomeIcon icon={faCheck} onClick={() => handleRemoveFromMerkliste(module.moduleId)} className="me-4" />
+                                        <FontAwesomeIcon icon={faCheck}
+                                                         onClick={() => handleRemoveFromMerkliste(module.moduleId)}
+                                                         className="me-4"/>
                                     ) : (
-                                        <FontAwesomeIcon icon={faBookmark} onClick={() => handleAddToMerkliste(module.moduleId)} className="me-4" />
+                                        <FontAwesomeIcon icon={faBookmark}
+                                                         onClick={() => handleAddToMerkliste(module.moduleId)}
+                                                         className="me-4"/>
                                     )
                                 }
                                 {filter === 'booked' ? (
-                                    <button className="btn btn-danger me-2" onClick={() => handleRemove(module.moduleId)}>Entfernen</button>
+                                    <button className="btn btn-danger me-2"
+                                            onClick={() => handleRemove(module.moduleId)}>Entfernen</button>
                                 ) : (
                                     <>
                                         {module.isBooked ? (
-                                            <button className="btn btn-danger me-2" onClick={() => handleRemove(module.moduleId)}>Entfernen</button>
+                                            <button className="btn btn-danger me-2"
+                                                    onClick={() => handleRemove(module.moduleId)}>Entfernen</button>
                                         ) : (
-                                            <button className="btn btn-primary me-2" onClick={() => handleEnroll(module.moduleId)}>Buchen</button>
+                                            <button className="btn btn-primary me-2"
+                                                    onClick={() => handleEnroll(module.moduleId)}>Buchen</button>
                                         )}
                                     </>
                                 )}
-                                <FontAwesomeIcon icon={faTrash} className="text-danger ms-2" style={{cursor: 'pointer'}} onClick={() => handleDeleteModule(module.moduleId)} />
+                                <FontAwesomeIcon icon={faTrash} className="text-danger ms-2" style={{cursor: 'pointer'}}
+                                                 onClick={() => handleDeleteModule(module.moduleId)}/>
                             </div>
                         </li>
                     ))}
@@ -240,7 +278,6 @@ function Dashboard() {
             </div>
         </div>
     );
-
 
 
 }

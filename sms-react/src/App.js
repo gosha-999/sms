@@ -7,7 +7,7 @@ import ModuleDetail from "./ModuleDetail";
 import AddKlausurTermine from "./AddKlausurTermine";
 import Klausurverwaltung from "./Klausurverwaltung";
 import Notenverwaltung from './Notenverwaltung';
-import Kanban from "./Kanban";
+import Kanban from "./KanbanBoard";
 import Kontodaten from "./Kontodaten";
 
 function App() {

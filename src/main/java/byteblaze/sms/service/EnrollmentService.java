@@ -2,8 +2,12 @@ package byteblaze.sms.service;
 
 import byteblaze.sms.model.Module;
 import byteblaze.sms.model.Nutzer;
+import byteblaze.sms.model.Task;
 import byteblaze.sms.repository.ModuleRepository;
 import byteblaze.sms.repository.NutzerRepository;
+import byteblaze.sms.repository.TaskRepository;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -14,17 +18,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class EnrollmentService {
 
     private final NutzerRepository nutzerRepository;
     private final ModuleRepository moduleRepository;
-
-    @Autowired
-    public EnrollmentService(NutzerRepository nutzerRepository, ModuleRepository moduleRepository) {
-        this.nutzerRepository = nutzerRepository;
-        this.moduleRepository = moduleRepository;
-    }
-
+    private  final  TaskRepository taskRepository;
+    private final TaskService taskService;
 
     public void addToGebucht(Long nutzerId, Long moduleId) {
         Nutzer nutzer = nutzerRepository.findById(nutzerId)
@@ -57,7 +57,7 @@ public class EnrollmentService {
             nutzer.getMerkliste().remove(module); // Entfernen Sie das Modul aus der Merkliste des Nutzers
         }
 
-
+        taskService.assignModuleTasksToUser(moduleId,nutzerId);
         nutzerRepository.save(nutzer);
     }
 
@@ -69,6 +69,7 @@ public class EnrollmentService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"));
 
         nutzer.getGebuchteModule().remove(module);
+        taskService.removeTasksByModuleIdForNutzer(moduleId,nutzerId);
         nutzerRepository.save(nutzer);
 
     }
@@ -152,5 +153,7 @@ public class EnrollmentService {
 
         return sumWeightedGrade / sumECTS;
     }
+
+
 }
 

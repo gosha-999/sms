@@ -9,8 +9,10 @@ import java.util.Map;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
     boolean existsByModuleId(Long moduleId);
-    List<Task> findByStatus(Task.TaskStatus status);
 
+    List<Task> findByNutzerId(Long nutzerId);
     List<Task> findByModuleId(Long moduleId);
+    List<Task> findByModuleIdAndNutzerId(Long moduleId, Long nutzerId);
+    Task findByIdAndNutzerId(Long taskId, Long nutzerId);
 }
 

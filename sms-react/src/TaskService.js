@@ -1,92 +1,70 @@
-import axios from "axios";
+import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8080';
-export const addTaskToModule = async (moduleId, taskData) => {
-    try {
-        const response = await axios.post(`${BASE_URL}/tasks/${moduleId}/add`, taskData, {
-            headers: {
-                'Content-Type': 'application/json',
-                // Eventuell weitere Headers für Authentifizierung
-            }
-        });
-        return response.data; // Der hinzugefügte Task
-    } catch (error) {
-        console.error('Fehler beim Hinzufügen eines Tasks:', error);
-        throw error;
-    }
+const BASE_URL = 'http://localhost:8080/tasks';
+
+// Axios-Instanz für wiederholte Header-Definitionen
+const axiosInstance = axios.create({
+    baseURL: BASE_URL,
+    headers: { 'Content-Type': 'application/json' }
+});
+
+// Setzt den Session-Header für jede Anfrage
+function setSessionHeader(sessionId) {
+    axiosInstance.defaults.headers.common['sessionId'] = sessionId;
+}
+
+// Hinzufügen eines individuellen Nutzer-Tasks
+export const addIndividualTask = async (task, sessionId) => {
+    setSessionHeader(sessionId);
+    const response = await axiosInstance.post('/add', task);
+    return response.data;
 };
 
+// Abrufen aller Tasks eines Nutzers
+export const getAllTasksForNutzer = async (sessionId) => {
+    setSessionHeader(sessionId);
+    const response = await axiosInstance.get('/get');
+    return response.data;
+};
+
+// Hinzufügen eines Modul-Tasks
+export const addModuleTask = async (moduleId, task) => {
+    const response = await axiosInstance.post(`/module/${moduleId}`, task);
+    return response.data;
+};
+
+// Abrufen aller Tasks eines Moduls
 export const getTasksByModuleId = async (moduleId) => {
-    try {
-        const response = await axios.get(`${BASE_URL}/tasks/${moduleId}`);
-        return response.data;
-    } catch (error) {
-        console.error('Fehler beim Abrufen der Tasks für das Modul:', error);
-        throw error; // Sie können eine Behandlung entsprechend Ihrer Anwendungslogik hinzufügen
-    }
+    const response = await axiosInstance.get(`/module/${moduleId}`);
+    return response.data;
 };
 
-// Neue Funktion, um einen Task zu einem Nutzer hinzuzufügen
-export const addTaskToNutzer = async (sessionId, taskData) => {
-    try {
-        const response = await axios.post(`${BASE_URL}/tasks/add`, taskData, {
-            headers: {
-                'Content-Type': 'application/json',
-                'sessionId': sessionId,
-            }
-        });
-        return response.data; // Der hinzugefügte Task
-    } catch (error) {
-        console.error('Fehler beim Hinzufügen eines Tasks zu einem Nutzer:', error);
-        throw error;
-    }
+// Aktualisieren eines Nutzer-Tasks
+export const updateNutzerTask = async (taskId, task, sessionId) => {
+    setSessionHeader(sessionId);
+    const response = await axiosInstance.put(`/${taskId}`, task);
+    return response.data;
 };
 
-// Neue Funktion, um alle Tasks eines Nutzers abzurufen
-export const getTasksByNutzerId = async (sessionId) => {
-    try {
-        const response = await axios.get(`${BASE_URL}/tasks/tasks`, {
-            headers: {
-                'sessionId': sessionId,
-            }
-        });
-        return response.data; // Die Tasks des Nutzers
-    } catch (error) {
-        console.error('Fehler beim Abrufen der Tasks eines Nutzers:', error);
-        throw error;
-    }
+// Löschen eines Nutzer-Tasks
+export const deleteNutzerTask = async (taskId, sessionId) => {
+    setSessionHeader(sessionId);
+    const response = await axiosInstance.delete(`/${taskId}`);
+    return response.status === 200;
 };
 
-// Neue Funktion, um einen Task eines Nutzers zu löschen
-export const deleteTask = async (sessionId, taskId) => {
-    try {
-        const response = await axios.delete(`${BASE_URL}/tasks/${taskId}`, {
-            headers: {
-                'sessionId': sessionId,
-            }
-        });
-        return response.data; // Bestätigung des gelöschten Tasks
-    } catch (error) {
-        console.error('Fehler beim Löschen eines Tasks:', error);
-        throw error;
-    }
+export const updateTaskStatus = async (taskId, newStatus, sessionId) => {
+    setSessionHeader(sessionId);
+    const response = await axiosInstance.patch(`/${taskId}/status`, { status: newStatus });
+    return response.data;
 };
 
-// Funktion, um den Status eines Tasks zu aktualisieren
-export const updateTaskStatus = async (sessionId, taskId, newStatus) => {
-    try {
-        const response = await axios.patch(`${BASE_URL}/tasks/${taskId}/status`, newStatus, {
-            headers: {
-                'Content-Type': 'text/plain', // Überprüfen, ob der Backend-Server diesen Content-Type für den Body akzeptiert
-                'sessionId': sessionId,
-            }
-        });
-        return response.data; // Der aktualisierte Task
-    } catch (error) {
-        console.error('Fehler beim Aktualisieren des Task-Status:', error);
-        throw error;
-    }
+export default {
+    addIndividualTask,
+    getAllTasksForNutzer,
+    addModuleTask,
+    getTasksByModuleId,
+    updateNutzerTask,
+    deleteNutzerTask,
+    updateTaskStatus
 };
-
-
-export default {addTaskToModule, addTaskToNutzer,getTasksByModuleId, getTasksByNutzerId, deleteTask, updateTaskStatus}

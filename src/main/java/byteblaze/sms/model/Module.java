@@ -34,8 +34,4 @@ public class Module {
     @Column(name = "rating")
     private Map<Long, Integer> bewertungen = new HashMap<>();
 
-    @ElementCollection
-    @CollectionTable(name = "module_tasks", joinColumns = @JoinColumn(name = "module_id"))
-    @Column(name = "task_id")
-    private List<Long> taskIds; // Hier werden nur die IDs der Tasks gespeichert
 }

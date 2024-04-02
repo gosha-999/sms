@@ -8,40 +8,42 @@ function Klausurverwaltung() {
     const [alleKlausurTermine, setAlleKlausurTermine] = useState({});
     const [gebuchteTermine, setGebuchteTermine] = useState([]);
     const sessionId = localStorage.getItem('sessionId');
+    const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+
+    const fetchData = async () => {
+        const gebuchteModuleData = await DashboardService.fetchBookedModules(sessionId);
+        const gebuchteKlausurTermine = await ModuleService.fetchBookedKlausurTermine(sessionId);
+        const moduleTerminePromises = gebuchteModuleData.map(modul =>
+            ModuleService.fetchKlausurTermineByModuleId(modul.moduleId)
+        );
+        const moduleTermineResults = await Promise.all(moduleTerminePromises);
+
+        let tempAlleKlausurTermine = {};
+        moduleTermineResults.forEach((termine, index) => {
+            const filteredTermine = termine.filter(termin =>
+                !gebuchteKlausurTermine.some(gebuchterTermin => gebuchterTermin.klausurTerminId === termin.klausurTerminId)
+            );
+            if (filteredTermine.length > 0) {
+                tempAlleKlausurTermine[gebuchteModuleData[index].moduleId] = filteredTermine;
+            }
+        });
+
+        setAlleKlausurTermine(tempAlleKlausurTermine);
+        setGebuchteModule(gebuchteModuleData.filter(modul => tempAlleKlausurTermine[modul.moduleId]));
+        setGebuchteTermine(gebuchteKlausurTermine);
+    };
 
     useEffect(() => {
         if (!sessionId) return;
-
-        const fetchData = async () => {
-            const gebuchteModuleData = await DashboardService.fetchBookedModules(sessionId);
-            const gebuchteKlausurTermine = await ModuleService.fetchBookedKlausurTermine(sessionId);
-            const moduleTerminePromises = gebuchteModuleData.map(modul =>
-                ModuleService.fetchKlausurTermineByModuleId(modul.moduleId)
-            );
-            const moduleTermineResults = await Promise.all(moduleTerminePromises);
-
-            let tempAlleKlausurTermine = {};
-            moduleTermineResults.forEach((termine, index) => {
-                const filteredTermine = termine.filter(termin =>
-                    !gebuchteKlausurTermine.some(gebuchterTermin => gebuchterTermin.klausurTerminId === termin.klausurTerminId)
-                );
-                if (filteredTermine.length > 0) {
-                    tempAlleKlausurTermine[gebuchteModuleData[index].moduleId] = filteredTermine;
-                }
-            });
-
-            setAlleKlausurTermine(tempAlleKlausurTermine);
-            setGebuchteModule(gebuchteModuleData.filter(modul => tempAlleKlausurTermine[modul.moduleId]));
-            setGebuchteTermine(gebuchteKlausurTermine);
-        };
-
         fetchData();
     }, [sessionId]);
 
     const handleEinschreiben = async (klausurTerminId, modulId) => {
         try {
             await ModuleService.bucheKlausurTermin(klausurTerminId, sessionId);
-            alert('Klausurtermin erfolgreich gebucht.');
+            setSuccessMessage('Klausurtermin erfolgreich gebucht.');
+            setTimeout(() => setSuccessMessage(''), 3000);
 
             const gebuchterTermin = alleKlausurTermine[modulId].find(termin => termin.klausurTerminId === klausurTerminId);
             setGebuchteTermine(prev => [...prev, gebuchterTermin]);
@@ -53,7 +55,8 @@ function Klausurverwaltung() {
                 setGebuchteModule(prev => prev.filter(modul => modul.moduleId !== modulId));
             }
         } catch (error) {
-            alert(error.response.data);
+            setErrorMessage(error.response.data || 'Ein Fehler ist aufgetreten.');
+            setTimeout(() => setErrorMessage(''), 3000);
         }
     };
 
@@ -66,7 +69,20 @@ function Klausurverwaltung() {
         <div>
             <Header />
             <div className="container mt-5">
-                <h2 className="card header text-white bg-primary p-2">Gebuchte Module mit verfügbaren Klausurterminen</h2>
+                <div className="container mt-4">
+                    {successMessage && (
+                        <div className="alert alert-success" role="alert">
+                            {successMessage}
+                        </div>
+                    )}
+                    {errorMessage && (
+                        <div className="alert alert-danger" role="alert">
+                            {errorMessage}
+                        </div>
+                    )}
+                </div>
+                <h2 className="card header text-white bg-primary p-2">Gebuchte Module mit verfügbaren
+                    Klausurterminen</h2>
                 {gebuchteModule.length === 0 ? (
                     <p>Keine gebuchten Module verfügbar.</p>
                 ) : (
@@ -81,7 +97,8 @@ function Klausurverwaltung() {
                                         <div className="card-body">
                                             <h5 className="card-title">{termin.klausurName}</h5>
                                             <p className="card-text">Datum: {termin.datum}</p>
-                                            <p className="card-text">Verbleibende Plätze: {termin.verbleibendePlätze}</p>
+                                            <p className="card-text">Verbleibende
+                                                Plätze: {termin.verbleibendePlätze}</p>
                                             <button
                                                 className={`btn btn-primary ${terminGebucht ? 'disabled' : ''}`}
                                                 onClick={() => handleEinschreiben(termin.klausurTerminId, modul.moduleId)}
@@ -113,7 +130,6 @@ function Klausurverwaltung() {
             </div>
         </div>
     );
-
 
 
 }

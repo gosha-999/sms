@@ -1,5 +1,6 @@
 package byteblaze.sms.model;
 
+import byteblaze.sms.model.Nutzer;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -10,29 +11,25 @@ import java.time.LocalDate;
 public class Task {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String title;
     private String description;
     private LocalDate deadline;
-    private Priority priority;
-    private LocalDate fulfillmentDate;
-    private LocalDate creationDate;
 
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
 
-    @Column(name = "module_id")
-    private Long moduleId = null; // Standardwert null
+    // Identifiziert, ob der Task zu einem Modul gehört; null für individuelle Nutzer-Tasks
+    @Column(nullable = true)
+    private Long moduleId;
 
+    // Beziehung zu einem Nutzer, dem der Task gehört; kann null sein für Modul-Tasks, die noch keinem Nutzer zugeordnet sind
+    @Column(nullable = true)
+    private Long nutzerId;
 
     public enum TaskStatus {
         TODO, IN_PROGRESS, DONE
     }
-
-    public enum Priority {
-        NIEDRIG, MITTEL, HOCH
-    }
 }
-

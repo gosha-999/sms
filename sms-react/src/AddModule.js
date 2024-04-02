@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addModule, addKlausurTermin} from './ModuleService';
-import {addTaskToModule} from './TaskService'
+import {addModuleTask} from './TaskService'
 import Header from "./Header";
 
 function AddModule() {
@@ -60,7 +60,7 @@ function AddModule() {
             const moduleId = response.moduleId;
 
             await Promise.all(klausurTermine.map(termin => addKlausurTermin(moduleId, termin)));
-            await Promise.all(tasks.map(task => addTaskToModule(moduleId, task)));
+            await Promise.all(tasks.map(task => addModuleTask(moduleId, task)));
 
             console.log('Modul, Klausurtermine und Tasks erfolgreich hinzugefügt');
             navigate(`/dashboard`);

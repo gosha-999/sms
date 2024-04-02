@@ -1,16 +1,23 @@
 package byteblaze.sms.config;
 
+import byteblaze.sms.model.KlausurTermin;
 import byteblaze.sms.model.Module;
+import byteblaze.sms.model.Task;
+import byteblaze.sms.repository.KlausurTerminRepository;
 import byteblaze.sms.repository.ModuleRepository;
+import byteblaze.sms.repository.TaskRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.LocalDate;
+
 @Configuration
 public class ModuleConfig {
     @Bean
-    CommandLineRunner commandLineRunner(ModuleRepository moduleRepository){
+    CommandLineRunner commandLineRunner(ModuleRepository moduleRepository, TaskRepository taskRepository, KlausurTerminRepository klausurTerminRepository){
         return args -> {
+            // Beispiel für das erste Modul
             Module module1 = new Module();
             module1.setName("Programmierung Grundlagen");
             module1.setBeschreibung("Einführung in die Programmierung");
@@ -22,7 +29,19 @@ public class ModuleConfig {
             module1.setMinSemester(1);
             module1.setDurchschnittlicheBewertung(4.5);
             module1.setAnzahlBewertungen(20);
+            moduleRepository.save(module1);
 
+
+            // Klausurtermin für Modul 1
+            KlausurTermin klausur1 = new KlausurTermin();
+            klausur1.setDatum(LocalDate.of(2024, 6, 20));
+            klausur1.setKlausurName("Abschlussklausur Programmierung Grundlagen");
+            klausur1.setMaxPlätze(100);
+            klausur1.setVerbleibendePlätze(100);
+            klausur1.setModuleId(module1.getModuleId());
+            klausurTerminRepository.save(klausur1);
+
+            // Beispiel für das zweite Modul: Datenbankmanagement
             Module module2 = new Module();
             module2.setName("Datenbankmanagement");
             module2.setBeschreibung("Einführung in Datenbankmanagementsysteme");
@@ -34,6 +53,16 @@ public class ModuleConfig {
             module2.setMinSemester(2);
             module2.setDurchschnittlicheBewertung(4.2);
             module2.setAnzahlBewertungen(18);
+            module2 = moduleRepository.save(module2);
+
+            // Klausurtermin für Modul 2
+            KlausurTermin klausur2 = new KlausurTermin();
+            klausur2.setDatum(LocalDate.of(2024, 7, 10));
+            klausur2.setKlausurName("Datenbankmanagement Klausur");
+            klausur2.setMaxPlätze(100);
+            klausur2.setVerbleibendePlätze(100);
+            klausur2.setModuleId(module2.getModuleId());
+            klausurTerminRepository.save(klausur2);
 
             Module module3 = new Module();
             module3.setName("Objektorientierte Programmierung");

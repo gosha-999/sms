@@ -6,7 +6,9 @@ import byteblaze.sms.model.Task;
 import byteblaze.sms.repository.ModuleRepository;
 import byteblaze.sms.repository.NutzerRepository;
 import byteblaze.sms.repository.TaskRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -14,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,109 +28,105 @@ public class TaskService {
     private final NutzerRepository nutzerRepository;
 
 
-    //NUTZER
-
-    //GET TaskIds
-    public List<Long> getTaskIdsByNutzerId(Long nutzerId) {
-        Nutzer nutzer = nutzerRepository.findById(nutzerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
-
-        return nutzer.getTaskIds();
-    }
-
-
-    //GET alle Tasks eines Nutzers als Objekt
-    public List<Task> getTasksByNutzerId(Long nutzerId) {
-        Nutzer nutzer = nutzerRepository.findById(nutzerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
-
-        List<Long> taskIds = nutzer.getTaskIds();
-        List<Task> tasks = new ArrayList<>();
-
-        for (Long taskId : taskIds) {
-            Task task = taskRepository.findById(taskId)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task nicht gefunden"));
-            tasks.add(task);
-        }
-
-        return tasks;
-    }
-
-
-    public Task addTaskToNutzer(Long nutzerId, Task task) {
-        Nutzer nutzer = nutzerRepository.findById(nutzerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
-
-        task = taskRepository.save(task);
-
-        nutzer.getTaskIds().add(task.getId());
-        nutzerRepository.save(nutzer);
-
-        return task;
-    }
-
-    public void deleteTask(Long nutzerId, Long taskId) {
-        // Holen Sie den Nutzer anhand seiner ID
-        Nutzer nutzer = nutzerRepository.findById(nutzerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
-
-        // Überprüfen Sie, ob der Task dem Nutzer gehört
-        if (!nutzer.getTaskIds().contains(taskId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Der Nutzer hat keinen Zugriff auf diesen Task");
-        }
-
-        // Überprüfen, ob der Task Teil eines Moduls ist
-        if (taskRepository.existsByModuleId(taskId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Der Task ist Teil eines Moduls und kann nicht gelöscht werden");
-        }
-
-        // Löschen Sie den Task aus der Datenbank
-        nutzer.getTaskIds().remove(taskId);
-        taskRepository.deleteById(taskId);
-    }
-
-
-    //MODULE
-    public List<Task> getTasksByModuleId(Long moduleId) {
-        List<Long> taskIds = moduleRepository.findById(moduleId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"))
-                .getTaskIds();
-
-        return taskIds.stream()
-                .map(taskId -> taskRepository.findById(taskId)
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task nicht gefunden")))
-                .collect(Collectors.toList());
-    }
-
-    public Task addTaskToModule(Long moduleId, Task task) {
-        Module module = moduleRepository.findById(moduleId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modul nicht gefunden"));
-
-        task = taskRepository.save(task);
-
-        module.getTaskIds().add(task.getId());
-        moduleRepository.save(module);
-
-        return task;
-    }
-
-    //FILTER
-    public List<Task> getTasksByStatus(Task.TaskStatus status) {
-        List<Task> allTasks = taskRepository.findAll();
-        return allTasks.stream()
-                .filter(task -> task.getStatus() == status)
-                .collect(Collectors.toList());
-    }
-
-    public Task updateTaskStatus(Long taskId, Task.TaskStatus newStatus) {
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task nicht gefunden"));
-        task.setStatus(newStatus);
+    // Fügt einen individuellen Task für einen Nutzer hinzu
+    public Task addIndividualTask(Long nutzerId, Task task) {
+        task.setNutzerId(nutzerId);
+        // Setze moduleId auf null, um es als individuellen Task zu markieren
+        task.setModuleId(null);
         return taskRepository.save(task);
     }
 
+    // Erstellt Kopien der Modul-Tasks für einen Nutzer, wenn dieser ein Modul bucht
+    public void assignModuleTasksToUser(Long moduleId, Long nutzerId) {
+        List<Task> moduleTasks = taskRepository.findByModuleId(moduleId);
+        List<Task> copiedTasks = moduleTasks.stream().map(task -> {
+            Task copy = new Task();
+            copy.setTitle(task.getTitle());
+            copy.setDescription(task.getDescription());
+            copy.setDeadline(task.getDeadline());
+            copy.setStatus(task.getStatus());
+            copy.setModuleId(task.getModuleId());
+            copy.setNutzerId(nutzerId);
+            return taskRepository.save(copy);
+        }).collect(Collectors.toList());
+    }
 
+    // Holt alle Tasks für einen Nutzer, inklusive individuelle und Modul-Tasks
+    public List<Task> getAllTasksForNutzer(Long nutzerId) {
+        return taskRepository.findByNutzerId(nutzerId);
+    }
 
+    // Methode zum Hinzufügen eines Modul-Tasks
+    public Task addModuleTask(Long moduleId, Task task) {
+        task.setModuleId(moduleId);
+        // Stelle sicher, dass der Task keinem spezifischen Nutzer zugeordnet ist, wenn er erstellt wird
+        task.setNutzerId(null);
+        return taskRepository.save(task);
+    }
+
+    // Methode zum Abrufen aller Tasks, die zu einem bestimmten Modul gehören
+    public List<Task> getTasksByModuleId(Long moduleId) {
+        return taskRepository.findByModuleId(moduleId);
+    }
+
+    // Methode zum Entfernen aller ModulTasks eines Nutzers basierend auf der moduleId
+    @Transactional
+    public void removeTasksByModuleIdForNutzer(Long moduleId, Long nutzerId) {
+        // Finde alle Tasks, die zum gegebenen Modul und Nutzer gehören
+        List<Task> tasksToRemove = taskRepository.findByModuleIdAndNutzerId(moduleId, nutzerId);
+
+        // Lösche die gefundenen Tasks
+        for (Task task : tasksToRemove) {
+            taskRepository.delete(task);
+        }
+    }
+
+    // Methode zum Aktualisieren eines Nutzer-Tasks
+    public Task updateNutzerTask(Long nutzerId, Long taskId, Task updatedTaskDetails) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task nicht gefunden"));
+
+        if (!task.getNutzerId().equals(nutzerId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Nicht berechtigt, diesen Task zu bearbeiten");
+        }
+
+        task.setTitle(updatedTaskDetails.getTitle());
+        task.setDescription(updatedTaskDetails.getDescription());
+        task.setDeadline(updatedTaskDetails.getDeadline());
+
+        return taskRepository.save(task);
+    }
+
+    // Methode zum Löschen eines Nutzer-Tasks
+    public void deleteNutzerTask(Long nutzerId, Long taskId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task nicht gefunden"));
+
+        if (!task.getNutzerId().equals(nutzerId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Nicht berechtigt, diesen Task zu löschen");
+        }
+
+        taskRepository.delete(task);
+    }
+
+    public Task updateTaskStatus(Long nutzerId, Long taskId, Task updatedTask) {
+        // Überprüfen, ob der Task dem Nutzer gehört
+        Task existingTask = taskRepository.findByIdAndNutzerId(taskId, nutzerId);
+        if (existingTask == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found or does not belong to the user");
+        }
+
+        // Überprüfen, ob updatedTask nicht null ist, bevor der Status aktualisiert wird
+        if (updatedTask == null || updatedTask.getStatus() == null) {
+            throw new IllegalArgumentException("Updated task or status cannot be null");
+        }
+
+        // Aktualisiere den Status des Tasks
+        existingTask.setStatus(updatedTask.getStatus());
+
+        // Speichern und Rückgabe des aktualisierten Tasks
+        return taskRepository.save(existingTask);
+    }
 
 }
 
