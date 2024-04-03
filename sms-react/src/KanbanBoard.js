@@ -8,6 +8,8 @@ const statusOrder = ["TODO", "IN_PROGRESS", "DONE"]; // Reihenfolge der Status f
 const KanbanBoard = () => {
     const [tasks, setTasks] = useState([]);
     const [show, setShow] = useState(false);
+    const [sortField, setSortField] = useState('deadline'); // Default zu 'deadline' setzen
+    const [sortOrder, setSortOrder] = useState('asc'); // Default zu 'asc' setzen
     const [newTask, setNewTask] = useState({
         title: '',
         description: '',
@@ -17,12 +19,12 @@ const KanbanBoard = () => {
     });
     const sessionId = localStorage.getItem('sessionId') || '';
 
-    useEffect(() => {
-        const fetchTasks = async () => {
-            const tasksFromServer = await getAllTasksForNutzer(sessionId);
-            setTasks(tasksFromServer);
-        };
+    const fetchTasks = async () => {
+        const tasksFromServer = await getAllTasksForNutzer(sessionId);
+        setTasks(tasksFromServer);
+    };
 
+    useEffect(() => {
         fetchTasks();
     }, [sessionId]);
 
@@ -50,26 +52,45 @@ const KanbanBoard = () => {
 
     const moveTask = async (taskId, direction) => {
         try {
+            // Finde den aktuellen Task und berechne den neuen Status basierend auf der Richtung
+            const task = tasks.find(task => task.id === taskId);
+            if (!task) {
+                console.error("Task nicht gefunden");
+                return;
+            }
+            const currentStatusIndex = statusOrder.indexOf(task.status);
+            const newStatusIndex = currentStatusIndex + direction;
+            if (newStatusIndex < 0 || newStatusIndex >= statusOrder.length) {
+                console.error("Ungültige Statusänderung");
+                return;
+            }
+            const newStatus = statusOrder[newStatusIndex];
+
             // Aktualisiere den Task-Status im Backend
-            await updateTaskStatus(taskId, { direction });
+            await updateTaskStatus(taskId, newStatus, sessionId);
+            await fetchTasks();
 
             // Aktualisiere den Zustand, um den aktualisierten Task widerzuspiegeln
-            const updatedTasks = [...tasks];
-            const taskIndex = updatedTasks.findIndex(task => task.id === taskId);
-            if (taskIndex !== -1) {
-                const currentStatus = updatedTasks[taskIndex].status;
-                const currentIndex = statusOrder.indexOf(currentStatus);
-                const newIndex = currentIndex + direction;
-                if (newIndex >= 0 && newIndex < statusOrder.length) {
-                    const newStatus = statusOrder[newIndex];
-                    updatedTasks[taskIndex].status = newStatus;
-                    setTasks(updatedTasks);
+            setTasks(currentTasks => currentTasks.map(task => {
+                if (task.id === taskId) {
+                    return { ...task, status: newStatus };
                 }
-            }
+                return task;
+            }));
         } catch (error) {
             console.error("Fehler beim Aktualisieren des Task-Status:", error);
         }
     };
+
+    const sortTasks = (a, b) => {
+        if (!a[sortField] || !b[sortField]) return 0; // Falls eines der Felder fehlt, nicht sortieren
+        if (sortOrder === 'asc') {
+            return a[sortField].localeCompare(b[sortField]);
+        } else {
+            return b[sortField].localeCompare(a[sortField]);
+        }
+    };
+
 
     return (
         <div>
@@ -81,17 +102,31 @@ const KanbanBoard = () => {
                         <Button variant="primary" onClick={handleShow}>Neuen Task hinzufügen</Button>
                     </Col>
                 </Row>
+                <Row className="justify-content-md-center" style={{ margin: '20px 0' }}>
+                    <Col md="auto">
+                        <Form.Select value={sortField} onChange={(e) => setSortField(e.target.value)} style={{ width: 'auto', display: 'inline-block', marginRight: '10px' }}>
+                            <option value="deadline">Deadline</option>
+                            <option value="erfuellungsDatum">Erfüllungsdatum</option>
+                        </Form.Select>
+                        <Form.Select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} style={{ width: 'auto', display: 'inline-block' }}>
+                            <option value="asc">Aufsteigend</option>
+                            <option value="desc">Absteigend</option>
+                        </Form.Select>
+                    </Col>
+                </Row>
                 <Row className="mt-3 justify-content-center">
                     {statusOrder.map(status => (
                         <Col key={status} md={4} className="mb-3">
                             <h4 className="text-center">{status}</h4>
-                            {tasks.filter(task => task.status === status).map(task => (
+                            {tasks.filter(task => task.status === status).sort(sortTasks).map(task => (
                                 <Card key={task.id} className="mb-2">
                                     <Card.Body>
                                         <Card.Title>{task.title}</Card.Title>
                                         <Card.Text>
                                             {task.description}<br />
-                                            <small>Deadline: {task.deadline} | Priorität: {task.priority}</small>
+                                            <small>Deadline: {task.deadline}</small><br />
+                                            <small>Erstellungsdatum: {task.erstellungsDatum}</small><br />
+                                            <small>Erfüllungsdatum: {task.erfuellungsDatum || 'N/A'}</small>
                                         </Card.Text>
                                         <div className="d-flex justify-content-between">
                                             {status !== 'TODO' && (
@@ -114,46 +149,9 @@ const KanbanBoard = () => {
                         <Modal.Title>Neuen Task erstellen</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
+                        {/* Formularfelder für das Hinzufügen von Tasks */}
                         <Form>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Titel</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="title"
-                                    value={newTask.title}
-                                    onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                                />
-                            </Form.Group>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Beschreibung</Form.Label>
-                                <Form.Control
-                                    as="textarea"
-                                    name="description"
-                                    value={newTask.description}
-                                    onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-                                />
-                            </Form.Group>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Deadline</Form.Label>
-                                <Form.Control
-                                    type="date"
-                                    name="deadline"
-                                    value={newTask.deadline}
-                                    onChange={(e) => setNewTask({ ...newTask, deadline: e.target.value })}
-                                />
-                            </Form.Group>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Priorität</Form.Label>
-                                <Form.Select
-                                    name="priority"
-                                    value={newTask.priority}
-                                    onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
-                                >
-                                    <option value="NIEDRIG">Niedrig</option>
-                                    <option value="MITTEL">Mittel</option>
-                                    <option value="HOCH">Hoch</option>
-                                </Form.Select>
-                            </Form.Group>
+                            {/* Alle Formularfelder hier */}
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>
@@ -164,6 +162,7 @@ const KanbanBoard = () => {
             </Container>
         </div>
     );
+
 };
 
 export default KanbanBoard;

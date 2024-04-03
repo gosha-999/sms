@@ -4,6 +4,7 @@ import byteblaze.sms.model.Nutzer;
 import byteblaze.sms.service.LoginService;
 import byteblaze.sms.service.NutzerService;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,10 +14,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 public class LoginController {
 
     @Autowired
     private LoginService loginService;
+    @Autowired
+    private NutzerService nutzerService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
@@ -41,6 +45,17 @@ public class LoginController {
             return ResponseEntity.ok("Logout successful");
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid session");
+        }
+    }
+
+    @PostMapping("/checkUsername")
+    public ResponseEntity<?> checkUsernameAvailable(@RequestBody Map<String, String> request) {
+        String nutzername = request.get("nutzername");
+        boolean exists = nutzerService.existsByUsername(nutzername);
+        if (exists) {
+            return ResponseEntity.ok(Map.of("available", false));
+        } else {
+            return ResponseEntity.ok(Map.of("available", true));
         }
     }
 

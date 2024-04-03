@@ -29,6 +29,9 @@ public class Task {
     @Column(nullable = true)
     private Long nutzerId;
 
+    private LocalDate erfuellungsDatum;
+    private LocalDate erstellungsDatum;
+
     public enum TaskStatus {
         TODO, IN_PROGRESS, DONE
     }

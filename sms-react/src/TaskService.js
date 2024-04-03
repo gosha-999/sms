@@ -1,4 +1,5 @@
 import axios from 'axios';
+import data from "bootstrap/js/src/dom/data";
 
 const BASE_URL = 'http://localhost:8080/tasks';
 
@@ -56,6 +57,7 @@ export const deleteNutzerTask = async (taskId, sessionId) => {
 export const updateTaskStatus = async (taskId, newStatus, sessionId) => {
     setSessionHeader(sessionId);
     const response = await axiosInstance.patch(`/${taskId}/status`, { status: newStatus });
+    console.log(response.data)
     return response.data;
 };
 

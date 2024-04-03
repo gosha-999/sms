@@ -31,6 +31,7 @@ public class TaskService {
     // Fügt einen individuellen Task für einen Nutzer hinzu
     public Task addIndividualTask(Long nutzerId, Task task) {
         task.setNutzerId(nutzerId);
+        task.setErstellungsDatum(LocalDate.now());
         // Setze moduleId auf null, um es als individuellen Task zu markieren
         task.setModuleId(null);
         return taskRepository.save(task);
@@ -109,24 +110,18 @@ public class TaskService {
         taskRepository.delete(task);
     }
 
-    public Task updateTaskStatus(Long nutzerId, Long taskId, Task updatedTask) {
-        // Überprüfen, ob der Task dem Nutzer gehört
-        Task existingTask = taskRepository.findByIdAndNutzerId(taskId, nutzerId);
-        if (existingTask == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found or does not belong to the user");
-        }
-
-        // Überprüfen, ob updatedTask nicht null ist, bevor der Status aktualisiert wird
-        if (updatedTask == null || updatedTask.getStatus() == null) {
-            throw new IllegalArgumentException("Updated task or status cannot be null");
-        }
-
-        // Aktualisiere den Status des Tasks
-        existingTask.setStatus(updatedTask.getStatus());
-
-        // Speichern und Rückgabe des aktualisierten Tasks
-        return taskRepository.save(existingTask);
-    }
+  @Transactional
+  public Task updateTaskStatus(Long nutzerId, Long taskId, Task updatedTask) {
+      Task existingTask = taskRepository.findByIdAndNutzerId(taskId, nutzerId);
+      if (existingTask == null) {
+          throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found or does not belong to the user");
+      }
+      if (updatedTask.getStatus() == Task.TaskStatus.DONE) {
+          existingTask.setErfuellungsDatum(LocalDate.now());
+      }
+      existingTask.setStatus(updatedTask.getStatus());
+      return taskRepository.save(existingTask);
+  }
 
 }
 

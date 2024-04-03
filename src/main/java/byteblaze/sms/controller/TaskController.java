@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin(origins = "http://localhost:3000")
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/tasks")
@@ -79,8 +79,7 @@ public class TaskController {
         return ResponseEntity.ok().build();
     }
 
-
-    @PutMapping("/{taskId}/status")
+    @PatchMapping("/{taskId}/status")
     public ResponseEntity<Task> updateTaskStatus(@RequestHeader("sessionId") String sessionId,@PathVariable Long taskId, @RequestBody Task updatedTask) {
         Long nutzerId = loginService.getUserIdFromSession(sessionId);
         if (nutzerId == null) {

@@ -22,6 +22,7 @@ export const registerUser = async (nutzername, password, email) => {
         const response = await axios.post(`${BASE_URL}/nutzer/add`, { nutzername, password, email });
         return response.data;
     } catch (error) {
+
         console.error('Registrierungsfehler:', error);
         throw error;
     }
@@ -48,6 +49,16 @@ export const fetchNutzerInfo = async (sessionId) => {
         return response.data;
     } catch (error) {
         console.error('Fehler:', error);
+        throw error;
+    }
+};
+
+export const checkUsernameAvailable = async (nutzername) => {
+    try {
+        const response = await axios.post(`${BASE_URL}/checkUsername`, { nutzername });
+        return response.data.available;
+    } catch (error) {
+        console.error('Fehler beim Überprüfen des Nutzernamens:', error);
         throw error;
     }
 };

@@ -28,7 +28,7 @@ public class NutzerService {
         String nutzername = nutzer.getNutzername();
 
         // Überprüfen, ob der Benutzername bereits existiert (ohne Groß- und Kleinschreibung zu berücksichtigen)
-        if (nutzerRepository.findAll().stream().anyMatch(existingUser -> existingUser.getNutzername().equalsIgnoreCase(nutzername))) {
+        if (existsByUsername(nutzer.getNutzername())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Benutzername bereits vergeben");
         }
 
@@ -38,16 +38,24 @@ public class NutzerService {
 
     public Nutzer updateUser(Long nutzerId, Nutzer updatedNutzer) {
         Nutzer existingNutzer = nutzerRepository.findById(nutzerId)
-                .orElseThrow(() -> {throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden");
-        });
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nutzer nicht gefunden"));
 
-        existingNutzer.setEmail(updatedNutzer.getEmail());
-        existingNutzer.setNutzername(updatedNutzer.getNutzername());
-        existingNutzer.setPassword(updatedNutzer.getPassword());
-        existingNutzer.setSemester(updatedNutzer.getSemester());
+        if (updatedNutzer.getEmail() != null) {
+            existingNutzer.setEmail(updatedNutzer.getEmail());
+        }
+        if (updatedNutzer.getNutzername() != null) {
+            existingNutzer.setNutzername(updatedNutzer.getNutzername());
+        }
+        if (updatedNutzer.getPassword() != null) {
+            existingNutzer.setPassword(updatedNutzer.getPassword());
+        }
+        if (updatedNutzer.getSemester() != 0) {
+            existingNutzer.setSemester(updatedNutzer.getSemester());
+        }
 
         return nutzerRepository.save(existingNutzer);
     }
+
 
     public void deleteUser(Long nutzerId) {
         nutzerRepository.deleteById(nutzerId);
@@ -57,5 +65,8 @@ public class NutzerService {
         return nutzerRepository.findAll();
     }
 
+    public boolean existsByUsername(String nutzername) {
+        return nutzerRepository.findByNutzername(nutzername) != null;
+    }
 
 }
