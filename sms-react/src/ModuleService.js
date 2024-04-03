@@ -127,6 +127,22 @@ export const getAllNotes = async (sessionId) => {
     }
 };
 
+export const rateModule = async (moduleId, sessionId, rating) => {
+    try {
+        const response = await axios.post(`${BASE_URL}/modules/${moduleId}/rating`, rating, {
+            headers: {
+                'Content-Type': 'application/json',
+                'sessionId': sessionId
+
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Fehler beim Hinzufügen der Bewertung:', error.response.data);
+        throw error;
+    }
+};
+
 
 
 
@@ -142,5 +158,6 @@ export default {
     fetchBookedKlausurTermine,
     addNotesForModules,
     getWeightedAverageGrade,
-    getAllNotes
+    getAllNotes,
+    rateModule
 };

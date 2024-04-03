@@ -149,9 +149,46 @@ const KanbanBoard = () => {
                         <Modal.Title>Neuen Task erstellen</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        {/* Formularfelder für das Hinzufügen von Tasks */}
                         <Form>
-                            {/* Alle Formularfelder hier */}
+                            <Form.Group className="mb-3">
+                                <Form.Label>Titel</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="title"
+                                    value={newTask.title}
+                                    onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Beschreibung</Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    name="description"
+                                    value={newTask.description}
+                                    onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Deadline</Form.Label>
+                                <Form.Control
+                                    type="date"
+                                    name="deadline"
+                                    value={newTask.deadline}
+                                    onChange={(e) => setNewTask({ ...newTask, deadline: e.target.value })}
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Priorität</Form.Label>
+                                <Form.Select
+                                    name="priority"
+                                    value={newTask.priority}
+                                    onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
+                                >
+                                    <option value="NIEDRIG">Niedrig</option>
+                                    <option value="MITTEL">Mittel</option>
+                                    <option value="HOCH">Hoch</option>
+                                </Form.Select>
+                            </Form.Group>
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>

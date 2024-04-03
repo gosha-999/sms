@@ -181,7 +181,7 @@ function Dashboard() {
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (error) {
             console.error('Fehler beim Löschen des Moduls:', error);
-            setErrorMessage("Module erfolgreich gelöscht")
+            setErrorMessage("Module ist belegt.")
             setTimeout(() => setErrorMessage(''), 3000);
         }
     };

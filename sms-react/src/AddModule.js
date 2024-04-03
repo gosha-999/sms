@@ -163,14 +163,6 @@ function AddModule() {
                                                 <option value="3">Hoch</option>
                                             </select>
                                         </div>
-                                        <div className="mb-3">
-                                            <label className="form-label">Status</label>
-                                            <select className="form-select" value={task.status} onChange={(e) => handleChangeTask(index, 'status', e.target.value)} required>
-                                                <option value="TODO">TODO</option>
-                                                <option value="IN_PROGRESS">IN_PROGRESS</option>
-                                                <option value="DONE">">DONE</option>
-                                            </select>
-                                        </div>
                                     </div>
                                 </div>
                             ))}

@@ -17,6 +17,7 @@ public class Module {
     private long moduleId;
 
     private String name;
+    @Column(columnDefinition = "LONGTEXT")
     private String beschreibung;
     private int ects;
     private String dozent;
