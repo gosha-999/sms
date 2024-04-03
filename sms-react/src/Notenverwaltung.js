@@ -87,66 +87,69 @@ function Notenverwaltung() {
     return (
         <div>
             <Header />
-            <div className="container mt-4">
-                <div className="text-white bg-primary mb-3 p-3 rounded" style={{backgroundColor: "blue"}}>
-                    <h1>Notenübersicht</h1>
-                    <div className="filter-controls mb-3">
-                        <button className={`btn btn-info mr-2 ${filterModus === 'alle' && 'active'}`}
-                                onClick={() => setFilterModus('alle')}>Alle Module
-                        </button>
-                        <button className={`btn btn-info mr-2 ${filterModus === 'benotet' && 'active'}`}
-                                onClick={() => setFilterModus('benotet')}>Benotete Module
-                        </button>
-                        <button className={`btn btn-info ${filterModus === 'nicht benotet' && 'active'}`}
-                                onClick={() => setFilterModus('nicht benotet')}>Nicht benotete Module
-                        </button>
+            <div className="container mt-5">
+                <div className="card bg-light mb-4">
+                    <h2 className="card-header text-white bg-primary">Notenübersicht</h2>
+                    <div className="card-body">
+                        <div className="btn-group mb-3" role="group" aria-label="Filter">
+                            <button
+                                type="button"
+                                className={`btn ${filterModus === 'alle' ? 'btn-primary' : 'btn-outline-primary'}`}
+                                onClick={() => setFilterModus('alle')}
+                            >
+                                Alle Module
+                            </button>
+                            <button
+                                type="button"
+                                className={`btn ${filterModus === 'benotet' ? 'btn-primary' : 'btn-outline-primary'}`}
+                                onClick={() => setFilterModus('benotet')}
+                            >
+                                Benotete Module
+                            </button>
+                            <button
+                                type="button"
+                                className={`btn ${filterModus === 'nicht benotet' ? 'btn-primary' : 'btn-outline-primary'}`}
+                                onClick={() => setFilterModus('nicht benotet')}
+                            >
+                                Nicht benotete Module
+                            </button>
+                        </div>
+
+                        {successMessage && <div className="alert alert-success" role="alert">{successMessage}</div>}
+                        {errorMessage && <div className="alert alert-danger" role="alert">{errorMessage}</div>}
+
+                        {filteredModules.length === 0 ? (
+                            <p>Keine gebuchten Module verfügbar.</p>
+                        ) : (
+                            filteredModules.map((module, index) => (
+                                <div key={module.moduleId} className="card mb-2">
+                                    <div className="card-header">
+                                        <strong>{module.name}</strong> - ECTS: {module.ects}
+                                    </div>
+                                    <div className="card-body">
+                                        <input
+                                            type="number"
+                                            className="form-control form-control-sm d-inline-block w-auto"
+                                            id={`grade-${module.moduleId}`}
+                                            placeholder="Note"
+                                            value={moduleGrades.find(item => item.moduleId === module.moduleId)?.grade || ''}
+                                            onChange={(e) => handleGradeChange(index, e.target.value)}
+                                            step="0.1"
+                                            min="1.0"
+                                            max="5.0"
+                                            disabled={allNotes[module.moduleId] !== undefined}
+                                        />
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                        <div className="mt-3">
+                            <button type="button" className="btn btn-primary mr-2" onClick={saveGrades}>Noten speichern</button>
+                            <div>Durchschnittsnote: {averageGrade > 0 ? averageGrade.toFixed(2) : "N/A"}</div>
+                        </div>
                     </div>
-
-                </div>
-                <div className="container mt-4">
-                    {successMessage && (
-                        <div className="alert alert-success" role="alert">
-                            {successMessage}
-                        </div>
-                    )}
-                    {errorMessage && (
-                        <div className="alert alert-danger" role="alert">
-                            {errorMessage}
-                        </div>
-                    )}
-                </div>
-                {filteredModules.length === 0 ? (
-                    <p>Keine gebuchten Module verfügbar.</p>
-                ) : (
-                    filteredModules.map((module, index) => (
-                        <div key={module.moduleId} className="card mb-2">
-                            <div className="card-header">
-                                <strong>{module.name}</strong> - ECTS: {module.ects}
-                            </div>
-                            <div className="card-body">
-                                <input
-                                    type="number"
-                                    className="form-control form-control-sm d-inline-block w-auto"
-                                    id={`grade-${module.moduleId}`}
-                                    placeholder="Note"
-                                    value={moduleGrades.find(item => item.moduleId === module.moduleId).grade}
-                                    onChange={(e) => handleGradeChange(index, e.target.value)}
-                                    step="0.1"
-                                    min="1.0"
-                                    max="5.0"
-                                    disabled={allNotes[module.moduleId] !== undefined}
-                                />
-                            </div>
-                        </div>
-                    ))
-                )}
-
-                <div className="mt-3">
-
-                    <button type="button" className="btn btn-primary mr-2" onClick={saveGrades}>Noten speichern</button>
-                    <div>Durchschnittsnote: {averageGrade > 0 ? averageGrade.toFixed(2) : "N/A"}</div>
-                </div>
             </div>
+        </div>
         </div>
     );
 

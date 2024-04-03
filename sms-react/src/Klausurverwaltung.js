@@ -69,64 +69,69 @@ function Klausurverwaltung() {
         <div>
             <Header />
             <div className="container mt-5">
-                <div className="container mt-4">
-                    {successMessage && (
-                        <div className="alert alert-success" role="alert">
-                            {successMessage}
-                        </div>
-                    )}
-                    {errorMessage && (
-                        <div className="alert alert-danger" role="alert">
-                            {errorMessage}
-                        </div>
-                    )}
-                </div>
-                <h2 className="card header text-white bg-primary p-2">Gebuchte Module mit verfügbaren
-                    Klausurterminen</h2>
-                {gebuchteModule.length === 0 ? (
-                    <p>Keine gebuchten Module verfügbar.</p>
-                ) : (
-                    gebuchteModule.map((modul) => (
-                        <div key={modul.moduleId} className="mt-4">
-                            <h3>{modul.name}</h3>
-                            {alleKlausurTermine[modul.moduleId]?.map((termin) => {
-                                // Prüfen, ob der Termin für das Modul bereits gebucht wurde
-                                const terminGebucht = isTerminGebucht(termin.klausurTerminId);
-                                return (
-                                    <div key={termin.klausurTerminId} className="card mb-3">
-                                        <div className="card-body">
-                                            <h5 className="card-title">{termin.klausurName}</h5>
-                                            <p className="card-text">Datum: {termin.datum}</p>
-                                            <p className="card-text">Verbleibende
-                                                Plätze: {termin.verbleibendePlätze}</p>
-                                            <button
-                                                className={`btn btn-primary ${terminGebucht ? 'disabled' : ''}`}
-                                                onClick={() => handleEinschreiben(termin.klausurTerminId, modul.moduleId)}
-                                                disabled={terminGebucht}
-                                            >
-                                                Einschreiben
-                                            </button>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    ))
+                {successMessage && (
+                    <div className="alert alert-success" role="alert">
+                        {successMessage}
+                    </div>
+                )}
+                {errorMessage && (
+                    <div className="alert alert-danger" role="alert">
+                        {errorMessage}
+                    </div>
                 )}
 
-                <h2 className="card header text-white bg-primary p-2 mt-4">Meine gebuchten Klausurtermine</h2>
-                {gebuchteTermine.length === 0 ? (
-                    <p>Keine gebuchten Klausurtermine verfügbar.</p>
-                ) : (
-                    gebuchteTermine.map((termin) => (
-                        <div key={termin.klausurTerminId} className="card mb-3">
-                            <div className="card-body">
-                                <h5 className="card-title">{termin.klausurName}</h5>
-                                <p className="card-text">Datum: {termin.datum}</p>
-                            </div>
-                        </div>
-                    ))
-                )}
+                <div className="card bg-light mb-4">
+                    <h2 className="card-header text-white bg-primary">Gebuchte Module mit verfügbaren Klausurterminen</h2>
+                    <div className="card-body">
+                        {gebuchteModule.length === 0 ? (
+                            <p>Keine gebuchten Module verfügbar.</p>
+                        ) : (
+                            gebuchteModule.map((modul) => (
+                                <div key={modul.moduleId} className="mt-4">
+                                    <h3>{modul.name}</h3>
+                                    {alleKlausurTermine[modul.moduleId]?.map((termin) => {
+                                        const terminGebucht = isTerminGebucht(termin.klausurTerminId);
+                                        return (
+                                            <div key={termin.klausurTerminId} className="card mb-3">
+                                                <div className="card-body">
+                                                    <h5 className="card-title">{termin.klausurName}</h5>
+                                                    <p className="card-text">Datum: {termin.datum}</p>
+                                                    <p className="card-text">Verbleibende Plätze: {termin.verbleibendePlätze}</p>
+                                                    <button
+                                                        className={`btn btn-${terminGebucht ? 'secondary' : 'primary'}`}
+                                                        onClick={() => handleEinschreiben(termin.klausurTerminId, modul.moduleId)}
+                                                        disabled={terminGebucht}
+                                                    >
+                                                        Einschreiben
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+
+                <div className="card bg-light">
+                    <h2 className="card-header text-white bg-primary">Meine gebuchten Klausurtermine</h2>
+                    <div className="card-body">
+                        {gebuchteTermine.length === 0 ? (
+                            <p>Keine gebuchten Klausurtermine verfügbar.</p>
+                        ) : (
+                            gebuchteTermine.map((termin) => (
+                                <div key={termin.klausurTerminId} className="card mb-3">
+                                    <div className="card-body">
+                                        <h5 className="card-title">{termin.klausurName}</h5>
+                                        <p className="card-text">Datum: {termin.datum}</p>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+
             </div>
         </div>
     );
