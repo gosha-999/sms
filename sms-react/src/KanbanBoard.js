@@ -91,58 +91,47 @@ const KanbanBoard = () => {
         }
     };
 
-
     return (
         <div>
             <Header />
-            <Container className="mt-5">
-                <Row>
-                    <Col className="text-center">
-                        <h2>Kanban Board</h2>
-                        <Button variant="primary" onClick={handleShow}>Neuen Task hinzufügen</Button>
-                    </Col>
-                </Row>
-                <Row className="justify-content-md-center" style={{ margin: '20px 0' }}>
-                    <Col md="auto">
-                        <Form.Select value={sortField} onChange={(e) => setSortField(e.target.value)} style={{ width: 'auto', display: 'inline-block', marginRight: '10px' }}>
-                            <option value="deadline">Deadline</option>
-                            <option value="erfuellungsDatum">Erfüllungsdatum</option>
-                        </Form.Select>
-                        <Form.Select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} style={{ width: 'auto', display: 'inline-block' }}>
-                            <option value="asc">Aufsteigend</option>
-                            <option value="desc">Absteigend</option>
-                        </Form.Select>
-                    </Col>
-                </Row>
-                <Row className="mt-3 justify-content-center">
-                    {statusOrder.map(status => (
-                        <Col key={status} md={4} className="mb-3">
-                            <h4 className="text-center">{status}</h4>
-                            {tasks.filter(task => task.status === status).sort(sortTasks).map(task => (
-                                <Card key={task.id} className="mb-2">
-                                    <Card.Body>
-                                        <Card.Title>{task.title}</Card.Title>
-                                        <Card.Text>
-                                            {task.description}<br />
-                                            <small>Deadline: {task.deadline}</small><br />
-                                            <small>Erstellungsdatum: {task.erstellungsDatum}</small><br />
-                                            <small>Erfüllungsdatum: {task.erfuellungsDatum || 'N/A'}</small>
-                                        </Card.Text>
-                                        <div className="d-flex justify-content-between">
-                                            {status !== 'TODO' && (
-                                                <Button variant="outline-secondary" onClick={() => moveTask(task.id, -1)}>←</Button>
-                                            )}
-                                            <Button variant="danger" onClick={() => handleDeleteTask(task.id)}>Löschen</Button>
-                                            {status !== 'DONE' && (
-                                                <Button variant="outline-secondary" onClick={() => moveTask(task.id, 1)}>→</Button>
-                                            )}
-                                        </div>
-                                    </Card.Body>
-                                </Card>
+            <div className="container mt-5">
+                <div className="card bg-light mb-4">
+                    <h2 className="card-header text-white bg-primary">Kanban Board</h2>
+                    <div className="card-body">
+                        <div className="mb-3 text-center">
+                            <Button variant="primary" onClick={handleShow}>Neuen Task hinzufügen</Button>
+                        </div>
+                        <div className="d-flex" style={{ width: '100%' }}>
+                            {statusOrder.map((status, index) => (
+                                <div key={status} className={`d-flex flex-column p-3 ${index < statusOrder.length - 1 ? 'border-right' : ''}`} style={{ flex: 1 }}>
+                                    <h4 className="text-center">{status}</h4>
+                                    {tasks.filter(task => task.status === status).sort(sortTasks).map(task => (
+                                        <Card key={task.id} className="mb-2">
+                                            <Card.Body>
+                                                <Card.Title>{task.title}</Card.Title>
+                                                <Card.Text>
+                                                    {task.description}<br />
+                                                    <small>Deadline: {task.deadline}</small><br />
+                                                    <small>Erstellungsdatum: {task.erstellungsDatum}</small><br />
+                                                    <small>Erfüllungsdatum: {task.erfuellungsDatum || 'N/A'}</small>
+                                                </Card.Text>
+                                                <div className="d-flex justify-content-between">
+                                                    {status !== 'TODO' && (
+                                                        <Button variant="outline-secondary" onClick={() => moveTask(task.id, -1)}>←</Button>
+                                                    )}
+                                                    <Button variant="danger" onClick={() => handleDeleteTask(task.id)}>Löschen</Button>
+                                                    {status !== 'DONE' && (
+                                                        <Button variant="outline-secondary" onClick={() => moveTask(task.id, 1)}>→</Button>
+                                                    )}
+                                                </div>
+                                            </Card.Body>
+                                        </Card>
+                                    ))}
+                                </div>
                             ))}
-                        </Col>
-                    ))}
-                </Row>
+                        </div>
+                    </div>
+                </div>
                 {/* Modal für das Hinzufügen von Tasks */}
                 <Modal show={show} onHide={handleClose}>
                     <Modal.Header closeButton>
@@ -196,7 +185,7 @@ const KanbanBoard = () => {
                         <Button variant="primary" onClick={handleAddTask}>Speichern</Button>
                     </Modal.Footer>
                 </Modal>
-            </Container>
+            </div>
         </div>
     );
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { loginUser, registerUser,checkUsernameAvailable } from './authService'; // Angenommen, beide Funktionen werden aus dem gleichen Modul importiert
+import { loginUser, registerUser,} from './authService'; // Angenommen, beide Funktionen werden aus dem gleichen Modul importiert
 import { useNavigate } from 'react-router-dom';
 
 function Register({ onLoginSuccess }) {
@@ -7,28 +7,23 @@ function Register({ onLoginSuccess }) {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState(''); // Zustand für das Bestätigungspasswort
     const [email, setEmail] = useState('');
+    const [semester, setSemester] = useState('');
     const navigate = useNavigate();
     const [errorMessage, setErrorMessage] = useState('');
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
-        // Überprüfung, ob Passwörter übereinstimmen
-        if (password !== confirmPassword) {
-            alert('Die Passwörter stimmen nicht überein.');
-            return; // Verhindert die Fortsetzung der Registrierung
-        }
-
         try {
-            if(checkUsernameAvailable(nutzername)) {
-                const response = await registerUser(nutzername, password, email);
-                console.log('Registrierung erfolgreich:', response);
-                loginUser(nutzername, password);
+            const registerSuccess = await registerUser(nutzername, password, confirmPassword, email, semester);
+            if (registerSuccess) {
+                await loginUser(nutzername, password); // Stellen Sie sicher, dass loginUser auch async aufgerufen wird
                 navigate('/dashboard');
+            } else {
+                setErrorMessage("Registrierung fehlgeschlagen. Bitte überprüfen Sie Ihre Eingaben.");
             }
         } catch (error) {
-            setErrorMessage("Nutzername exisitiert bereits.")
-            console.error(error)
+
+            console.error('Unbehandelter Fehler:', error);
         }
     };
 
@@ -85,6 +80,17 @@ function Register({ onLoginSuccess }) {
                             id="registerEmail"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="registerSemester" className="form-label">Semester</label>
+                        <input
+                            type="number"
+                            className="form-control"
+                            id="registerSemester"
+                            value={semester}
+                            onChange={(e) => setSemester(e.target.value)}
                             required
                         />
                     </div>

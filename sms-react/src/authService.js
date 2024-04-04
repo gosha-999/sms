@@ -17,16 +17,30 @@ export const loginUser = async (nutzername, password) => {
     }
 };
 
-export const registerUser = async (nutzername, password, email) => {
+export const registerUser = async (nutzername, password, confirmPassword, email, semester) => {
     try {
-        const response = await axios.post(`${BASE_URL}/nutzer/add`, { nutzername, password, email });
-        return response.data;
-    } catch (error) {
+        if (!(await checkUsernameAvailable(nutzername))) {
+            console.error('Nutzername ist bereits vergeben.');
+            return false; // Nutzername nicht verfügbar
+        }
 
+        if (password !== confirmPassword) {
+            console.error('Die Passwörter stimmen nicht überein.');
+            return false; // Passwörter stimmen nicht überein
+        }
+
+        const response = await axios.post(`${BASE_URL}/nutzer/add`, { nutzername, password, email, semester });
+        if (response.status === 200 || response.status === 201) {
+            return true; // Registrierung erfolgreich
+        } else {
+            return false; // Registrierung fehlgeschlagen
+        }
+    } catch (error) {
         console.error('Registrierungsfehler:', error);
-        throw error;
+        return false; // Fehler bei der Registrierung
     }
 };
+
 
 export const logout = async (sessionId) => {
     try {

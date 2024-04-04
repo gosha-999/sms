@@ -10,6 +10,8 @@ function ModuleDetail() {
     const [klausurTermine, setKlausurTermine] = useState([]);
     const [tasks, setTasks] = useState([]);
     const { moduleId } = useParams();
+    const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
 
     const fetchModuleDetails = async () => {
         try {
@@ -51,19 +53,23 @@ function ModuleDetail() {
             const sessionId = localStorage.getItem("sessionId"); // Annahme, dass die Session ID im localStorage gespeichert ist
             await ModuleService.rateModule(moduleId, sessionId, newRating);
             await fetchModuleDetails();
-            alert('Bewertung erfolgreich hinzugefügt');
+            setSuccessMessage("Modul erfolgreich bewertet")
+            setTimeout(() => setSuccessMessage(''), 3000);
         } catch (error) {
             console.error('Fehler beim Hinzufügen der Bewertung:', error);
-            alert('Fehler beim Hinzufügen der Bewertung'); // Nutze hier besser eine Benutzerfreundlichere Benachrichtigung
+            setErrorMessage("Es können nur benotete Module bewertet werden.")
+            setTimeout(() => setErrorMessage(''), 3000);
         }
     };
 
     return (
         <div>
             <Header />
+
             <div className="container py-5">
                 {/* Moduldetails Karte */}
                 <div className="card mb-3 shadow">
+
                     <div className="card-header bg-primary text-white">
                         <h3 className="mb-0">{moduleDetails?.name}</h3>
                     </div>
@@ -73,19 +79,21 @@ function ModuleDetail() {
                             <div className="col-md-6">
                                 <p className="card-text"><strong>Dozent:</strong> {moduleDetails?.dozent}</p>
                                 <p className="card-text"><strong>ECTS:</strong> {moduleDetails?.ects}</p>
-                                <p className="card-text"><strong>Mindestsemester:</strong> {moduleDetails?.minSemester}</p>
+                                <p className="card-text"><strong>Mindestsemester:</strong> {moduleDetails?.minSemester}
+                                </p>
                             </div>
                             <div className="col-md-6">
                                 <p className="card-text"><strong>Lehrstuhl:</strong> {moduleDetails?.lehrstuhl}</p>
                                 <p className="card-text"><strong>Regeltermin:</strong> {moduleDetails?.regeltermin}</p>
-                                <p className="card-text"><strong>Literaturempfehlung:</strong> {moduleDetails?.literaturempfehlung}</p>
+                                <p className="card-text">
+                                    <strong>Literaturempfehlung:</strong> {moduleDetails?.literaturempfehlung}</p>
                             </div>
                         </div>
 
                         {/* Trennlinie und Titel "Beschreibung" */}
                         <div className="row">
                             <div className="col">
-                                <hr />
+                                <hr/>
                                 <h5 className="text-center">Beschreibung</h5>
                             </div>
                         </div>
@@ -95,6 +103,19 @@ function ModuleDetail() {
                             <div className="col">
                                 <p className="card-text">{moduleDetails?.beschreibung}</p>
                             </div>
+                        </div>
+
+                        <div className="container mt-4">
+                            {successMessage && (
+                                <div className="alert alert-success" role="alert">
+                                    {successMessage}
+                                </div>
+                            )}
+                            {errorMessage && (
+                                <div className="alert alert-danger" role="alert">
+                                    {errorMessage}
+                                </div>
+                            )}
                         </div>
 
                         {/* Durchschnittliche Bewertung und Möglichkeit zur Bewertung */}
@@ -129,7 +150,7 @@ function ModuleDetail() {
                         </div>
                     </div>
                 </div>
-                
+
                 {/* Klausurtermine Karte */}
                 {klausurTermine.length > 0 && (
                     <div className="card mb-4 shadow">
