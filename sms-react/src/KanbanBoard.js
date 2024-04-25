@@ -8,7 +8,7 @@ const statusOrder = ["TODO", "IN_PROGRESS", "DONE"]; // Reihenfolge der Status f
 const KanbanBoard = () => {
     const [tasks, setTasks] = useState([]);
     const [show, setShow] = useState(false);
-    const [sortField, setSortField] = useState('deadline'); // Default zu 'deadline' setzen
+    const [sortField, setSortField] = useState(''); // Default zu 'deadline' setzen
     const [sortOrder, setSortOrder] = useState('asc'); // Default zu 'asc' setzen
     const [newTask, setNewTask] = useState({
         title: '',
@@ -19,6 +19,8 @@ const KanbanBoard = () => {
     });
     const sessionId = localStorage.getItem('sessionId') || '';
 
+    const [filterDeadline, setFilterDeadline] = useState('');
+    const [filterErfuellungsDatum, setFilterErfuellungsDatum] = useState('');
     const fetchTasks = async () => {
         const tasksFromServer = await getAllTasksForNutzer(sessionId);
         setTasks(tasksFromServer);
@@ -28,8 +30,6 @@ const KanbanBoard = () => {
         fetchTasks();
     }, [sessionId]);
 
-    const handleShow = () => setShow(true);
-    const handleClose = () => setShow(false);
 
     const handleAddTask = async () => {
         try {
@@ -82,14 +82,25 @@ const KanbanBoard = () => {
         }
     };
 
+    const handleShow = () => setShow(true);
+    const handleClose = () => setShow(false);
+
+    const handleSort = (field) => {
+        const order = sortField === field && sortOrder === 'asc' ? 'desc' : 'asc';
+        setSortField(field);
+        setSortOrder(order);
+    };
+
     const sortTasks = (a, b) => {
-        if (!a[sortField] || !b[sortField]) return 0; // Falls eines der Felder fehlt, nicht sortieren
+        if (!a[sortField] || !b[sortField]) return 0;
         if (sortOrder === 'asc') {
             return a[sortField].localeCompare(b[sortField]);
         } else {
             return b[sortField].localeCompare(a[sortField]);
         }
     };
+
+
 
     return (
         <div>
@@ -100,6 +111,15 @@ const KanbanBoard = () => {
                     <div className="card-body">
                         <div className="mb-3 text-center">
                             <Button variant="primary" onClick={handleShow}>Neuen Task hinzufügen</Button>
+                        </div>
+                        {/* Sortierbuttons für Deadline und Erfüllungsdatum */}
+                        <div className="mb-3 d-flex justify-content-between">
+                            <Button onClick={() => handleSort('deadline')}>
+                                Sortiere nach Deadline {sortField === 'deadline' && (sortOrder === 'asc' ? '↑' : '↓')}
+                            </Button>
+                            <Button onClick={() => handleSort('erfuellungsDatum')}>
+                                Sortiere nach Erfüllungsdatum {sortField === 'erfuellungsDatum' && (sortOrder === 'asc' ? '↑' : '↓')}
+                            </Button>
                         </div>
                         <div className="d-flex" style={{ width: '100%' }}>
                             {statusOrder.map((status, index) => (
