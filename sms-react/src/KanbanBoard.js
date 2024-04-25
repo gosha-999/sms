@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Button, Card, Form, Modal } from 'react-bootstrap';
 import { addIndividualTask, getAllTasksForNutzer, deleteNutzerTask, updateTaskStatus } from './TaskService';
 import Header from "./Header";
-
+// :)
 const statusOrder = ["TODO", "IN_PROGRESS", "DONE"]; // Reihenfolge der Status für die Verschiebung
 
 const KanbanBoard = () => {
