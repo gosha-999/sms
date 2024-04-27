@@ -2,11 +2,17 @@ import React, { useState, useEffect, useRef } from 'react';
 import { fetchNutzerInfo, logout } from './authService';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome } from '@fortawesome/free-solid-svg-icons'; // Importieren des Haus-Symbols
+import { faHome } from '@fortawesome/free-solid-svg-icons';
+import data from "bootstrap/js/src/dom/data"; // Importieren des Haus-Symbols
 
 function Header({ onNutzerNameUpdate }) {
     const [sessionId, setSessionId] = useState(localStorage.getItem('sessionId') || null);
     const [nutzername, setNutzername] = useState('');
+    const [nutzerData, setNutzerData] = useState({
+        nutzername: '',
+        email: '',
+        semester: 0  // Semester als Zahl
+    });
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
@@ -21,8 +27,11 @@ function Header({ onNutzerNameUpdate }) {
         if (sessionId) {
             try {
                 const info = await fetchNutzerInfo(sessionId);
+                setNutzerData(info);
                 setNutzername(info.nutzername);
+
                 onNutzerNameUpdate(info.nutzername);
+
             } catch (error) {
                 console.error('Fehler beim Laden der Nutzerinformationen:', error);
             }
