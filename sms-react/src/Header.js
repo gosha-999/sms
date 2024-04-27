@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome } from '@fortawesome/free-solid-svg-icons'; // Importieren des Haus-Symbols
 
-function Header() {
+function Header({ onNutzerNameUpdate }) {
     const [sessionId, setSessionId] = useState(localStorage.getItem('sessionId') || null);
     const [nutzername, setNutzername] = useState('');
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -13,7 +13,8 @@ function Header() {
 
     useEffect(() => {
         fetchNutzerName();
-    }, []);
+
+    }, [onNutzerNameUpdate]);
 
     const fetchNutzerName = async () => {
         const sessionId = localStorage.getItem('sessionId');
@@ -21,6 +22,7 @@ function Header() {
             try {
                 const info = await fetchNutzerInfo(sessionId);
                 setNutzername(info.nutzername);
+                onNutzerNameUpdate(info.nutzername);
             } catch (error) {
                 console.error('Fehler beim Laden der Nutzerinformationen:', error);
             }

@@ -6,6 +6,7 @@ import Header from "./Header";
 const statusOrder = ["TODO", "IN_PROGRESS", "DONE"]; // Reihenfolge der Status für die Verschiebung
 
 const KanbanBoard = () => {
+    const [nutzername, setNutzername] = useState('');
     const [tasks, setTasks] = useState([]);
     const [show, setShow] = useState(false);
     const [sortField, setSortField] = useState(''); // Default zu 'deadline' setzen
@@ -18,6 +19,7 @@ const KanbanBoard = () => {
         status: 'TODO'
     });
     const sessionId = localStorage.getItem('sessionId') || '';
+
 
     const [filterDeadline, setFilterDeadline] = useState('');
     const [filterErfuellungsDatum, setFilterErfuellungsDatum] = useState('');
@@ -104,7 +106,7 @@ const KanbanBoard = () => {
 
     return (
         <div>
-            <Header />
+            <Header onNutzerNameUpdate={setNutzername} />
             <div className="container mt-5">
                 <div className="card bg-light mb-4">
                     <h2 className="card-header text-white bg-primary">Kanban Board</h2>
@@ -130,10 +132,11 @@ const KanbanBoard = () => {
                                             <Card.Body>
                                                 <Card.Title>{task.title}</Card.Title>
                                                 <Card.Text>
-                                                    {task.description}<br />
-                                                    <small>Deadline: {task.deadline}</small><br />
-                                                    <small>Erstellungsdatum: {task.erstellungsDatum}</small><br />
-                                                    <small>Erfüllungsdatum: {task.erfuellungsDatum || 'N/A'}</small>
+                                                    {task.description}<br/>
+                                                    <small>Deadline: {task.deadline}</small><br/>
+                                                    <small>Erstellungsdatum: {task.erstellungsDatum}</small><br/>
+                                                    <small>Erfüllungsdatum: {task.erfuellungsDatum || 'N/A'}</small><br/>
+                                                    <small>Nutzername: {nutzername}</small>
                                                 </Card.Text>
                                                 <div className="d-flex justify-content-between">
                                                     {status !== 'TODO' && (
