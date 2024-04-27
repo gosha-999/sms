@@ -33,14 +33,26 @@ const Kontodaten = () => {
 
         let updatedFields = {};
         if (email.trim() !== '') updatedFields.email = email;
-        if (nutzername.trim() !== '') {
-            const isAvailable = await checkUsernameAvailable(nutzername);
+
+
+        if (nutzername.trim() && nutzername.trim() !== currentUser.nutzername) {
+            const trimmedUsername = nutzername.trim();
+            const isAvailable = await checkUsernameAvailable(trimmedUsername);
             if (!isAvailable) {
                 setError('Dieser Nutzername ist bereits vergeben.');
-                return;
+                return; // Beende die Funktion frühzeitig
+            } else {
+                updatedFields.nutzername = trimmedUsername;
+                console.log('Nutzername wurde erfolgreich aktualisiert.');
             }
-            updatedFields.nutzername = nutzername;
         }
+
+
+
+
+
+
+
         if (semester<= 10) {
             updatedFields.semester = semester;
         } else {
@@ -98,7 +110,6 @@ const Kontodaten = () => {
                                                 <Form.Control
                                                     type="email"
                                                     placeholder="Neue E-Mail-Adresse eingeben"
-                                                    value={email}
                                                     onChange={(e) => setEmail(e.target.value)}
                                                 />
                                             </Form.Group>
@@ -124,7 +135,6 @@ const Kontodaten = () => {
                                                 <Form.Control
                                                     type="password"
                                                     placeholder="Neues Passwort"
-                                                    value={password}
                                                     onChange={(e) => setPassword(e.target.value)}
                                                 />
                                             </Form.Group>
@@ -133,7 +143,6 @@ const Kontodaten = () => {
                                                 <Form.Control
                                                     type="password"
                                                     placeholder="Passwort bestätigen"
-                                                    value={confirmPassword}
                                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                                 />
                                             </Form.Group>
